@@ -1,4 +1,4 @@
-# 🎧 Sondr
+# Sondr
 
 **Sondr** is an anonymous social platform where users can share voice notes and live photos.
 
@@ -9,7 +9,7 @@
 - **Whisprs**: Share short anonymous voice notes.
 - **Snapshots**: Snap and post instantly. No gallery uploads allowed.
 - **Explore Feed**: Scroll through other users’ posts anonymously.
-- 
+
 ---
 
 ## Screenshots
