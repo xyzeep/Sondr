@@ -1,7 +1,5 @@
 package com.softwarica.sondr
 
-import android.app.Activity
-import android.graphics.Paint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,11 +8,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.SnapPosition
-import androidx.compose.foundation.gestures.snapping.SnapPosition.Center
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,25 +38,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import com.softwarica.sondr.ui.theme.LoraFont
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Lora font
-val LoraFont = FontFamily(
-    Font(R.font.lora)
-)
+
 
 // main class
 class LoginActivity : ComponentActivity() {
@@ -108,7 +96,7 @@ fun LoginBody() {
         ) {
             // Sondr Logo
             Image(
-                painter = painterResource(R.drawable.sondor),
+                painter = painterResource(R.drawable.sondr_logo),
                 contentDescription = null,
                 modifier = Modifier
                     .height(120.dp)
@@ -347,7 +335,7 @@ fun LoginBody() {
                     fontFamily = LoraFont
                 )
 
-                Spacer(Modifier.height(80.dp))
+                Spacer(Modifier.height(100.dp))
 
                 // terms and condition
                 Row(
