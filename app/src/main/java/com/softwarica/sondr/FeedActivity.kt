@@ -85,7 +85,7 @@ fun FeedBody() {
             time = "3 min ago",
             caption = "when life gives you lemonade, throw it in the bin",
             type = PostType.SNAPSHOT,
-            mediaRes = R.drawable.shoes, // post SNAPSHOT
+            mediaRes = R.drawable.alu, // post SNAPSHOT
             likes = 42,
             author = "ChandramaKoDaag"
         ),

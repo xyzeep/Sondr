@@ -9,3 +9,8 @@ import com.softwarica.sondr.R
 val LoraFont = FontFamily(
     Font(R.font.lora)
 )
+
+// INTER FONT FOR BRANDING
+val InterFont = FontFamily(
+    Font(R.font.inter)
+)
