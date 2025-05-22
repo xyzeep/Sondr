@@ -68,8 +68,11 @@ fun LoginBody() {
     // user input for sonder code
     var sondrCode by remember { mutableStateOf("") }
 
-    // user input for username while registerig
+    // user input for username while register
     var registerUsername by remember { mutableStateOf("") }
+
+    // user input for username while login
+    var loginUsername by remember { mutableStateOf("") }
 
     // boolean for toggling  sondr code visibility
     var sondrCodVisibility by remember {
@@ -147,6 +150,53 @@ fun LoginBody() {
                         modifier = Modifier
                         .padding(bottom = 10.dp)
                 )
+                OutlinedTextField(
+                    value = loginUsername,
+                    onValueChange = { input ->
+                        if (input.length <= 12) {
+                            loginUsername = input
+                        }
+                    },
+                    modifier = Modifier
+                        .width(340.dp)
+                        .height(54.dp)
+                        .border(width = 2.dp, color = Color.White.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp)),
+                    shape = RoundedCornerShape(8.dp),
+                    singleLine = true,
+                    placeholder = {
+                        Text(
+                            text = "Username",
+                            color = Color.White.copy(alpha = 0.5f),
+                            fontFamily = LoraFont,
+                            fontSize = 20.sp
+                        )
+                    },
+                    textStyle = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontFamily = LoraFont
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password
+                    ),
+                    suffix = {
+                        Text(
+                            text = "${loginUsername.length}/12",
+                            color = Color.White.copy(alpha = 0.5f),
+                            fontSize = 16.sp,
+                            fontFamily = LoraFont
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1E1E1E),
+                        unfocusedContainerColor = Color(0xFF1E1E1E),
+                        focusedBorderColor = Color(0xFFFFFFFF)
+                    )
+                )
+
+                Spacer(Modifier.height(12.dp))
+                
                 // row for login entry and button
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -164,7 +214,7 @@ fun LoginBody() {
                         },
 
                         modifier = Modifier
-                            .width(216.dp)
+                            .width(226.dp)
                             .height(54.dp)
                             .padding(top = 0.dp)
                             .border(width = 2.dp, color = Color.White.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp)),
@@ -239,7 +289,7 @@ fun LoginBody() {
                 HorizontalDivider(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16 .dp),
+                        .padding(vertical = 16.dp),
                     thickness = 2.dp,
                     color = Color.White.copy(alpha = 0.3f)
                 )
@@ -306,7 +356,7 @@ fun LoginBody() {
                     )
                 )
                 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
                 // register button
                 Button(
                     onClick = {
@@ -335,7 +385,7 @@ fun LoginBody() {
                     fontFamily = LoraFont
                 )
 
-                Spacer(Modifier.height(100.dp))
+                Spacer(Modifier.height(68.dp))
 
                 // terms and condition
                 Row(
