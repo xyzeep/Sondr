@@ -17,10 +17,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -83,7 +85,7 @@ fun FeedBody() {
         Post(
             postId = "snap-0x5g5ts5",
             time = "3 min ago",
-            caption = "when life gives you lemonade, throw it in the bin",
+            caption = "when life gives you lemons, throw it in the bin",
             type = PostType.SNAPSHOT,
             mediaRes = R.drawable.alu, // post SNAPSHOT
             likes = 42,
@@ -212,18 +214,62 @@ fun FeedBody() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .fillMaxHeight(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceAround
             ) {
-                    Spacer(modifier = Modifier.width(8.dp)) // space between logo and text
-                    Text(
-                        text = "TODO: NAV BAR",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = LoraFont,
-                        color = Color.White
-                    )
+                Icon(
+                    painter = painterResource(R.drawable.baseline_home_24),
+                    contentDescription = "home_icon",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clickable {
+                        // TODO
+                    },
+                    tint = Color.White
+                )
+                Icon(
+                    painter = painterResource(R.drawable.baseline_search_24),
+                    contentDescription = "search_icon",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clickable {
+                        // TODO
+                    },
+                    tint = Color.White
+                )
+                Icon(
+                    painter = painterResource(R.drawable.baseline_add_circle_24),
+                    contentDescription = "add_icon",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clickable {
+                        // TODO
+                    },
+                    tint = Color.White
+                )
+                Icon(
+                    painter = painterResource(R.drawable.baseline_notifications_none_24),
+                    contentDescription = "notification_icon",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clickable {
+                        // TODO
+                    },
+                    tint = Color.White
+                )
+                Icon(
+                    painter = painterResource(R.drawable.baseline_person_outline_24),
+                    contentDescription = "profile_icon",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clickable {
+                        // TODO
+                    },
+                    tint = Color.White
+                )
+
+
                 }
 
         }
@@ -236,7 +282,7 @@ fun Feed(posts: List<Post>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .height(650.dp)
+            .height(674.dp)
     ) {
         items(posts.size) { index ->
             val post = posts[index]
@@ -244,7 +290,18 @@ fun Feed(posts: List<Post>) {
 
         }
     }
+
+    HorizontalDivider(
+        modifier = Modifier
+            .fillMaxWidth(),
+        thickness = 1.dp,
+        color = Color.White.copy(alpha = 0.3f)
+    )
+
+
 }
+
+
 
 @Preview
 @Composable
