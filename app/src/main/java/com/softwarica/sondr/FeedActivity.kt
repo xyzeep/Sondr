@@ -287,7 +287,6 @@ fun Feed(posts: List<Post>) {
         items(posts.size) { index ->
             val post = posts[index]
             PostItem(post = post)
-
         }
     }
 
@@ -297,8 +296,6 @@ fun Feed(posts: List<Post>) {
         thickness = 1.dp,
         color = Color.White.copy(alpha = 0.3f)
     )
-
-
 }
 
 
