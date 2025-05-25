@@ -234,7 +234,6 @@ fun PostSnapshotBody() {
                             fontWeight = FontWeight.Bold,
                             fontFamily = InterFont
                         )
-
                         Switch(
                             checked = private,
                             onCheckedChange = {
