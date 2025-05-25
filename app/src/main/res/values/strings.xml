@@ -3,4 +3,6 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_feed">FeedActivity</string>
     <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_new_snapshot">NewSnapshotActivity</string>
+    <string name="title_activity_post_snapshot">PostSnapshotActivity</string>
 </resources>
