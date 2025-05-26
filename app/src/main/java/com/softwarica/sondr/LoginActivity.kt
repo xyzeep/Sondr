@@ -1,5 +1,7 @@
 package com.softwarica.sondr
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -85,8 +88,9 @@ fun LoginBody() {
         mutableStateOf(false)
     }
 
-//    val context = LocalContext.current
-//    val activity = context as Activity
+
+    val context = LocalContext.current
+    val activity = context as? Activity
 
 
     Scaffold(
@@ -263,6 +267,14 @@ fun LoginBody() {
                     Button(
                         onClick = {
                             // TODO: handle login
+                            val intent = Intent(context, FeedActivity::class.java)
+                            //first parameter - key
+                            //second parameter - value
+//                            intent.putExtra("email",email)
+//                            intent.putExtra("password",password)
+
+                            context.startActivity(intent)
+                            activity?.finish()
                         },
 
                         modifier = Modifier
