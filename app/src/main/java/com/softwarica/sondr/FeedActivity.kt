@@ -135,7 +135,6 @@ fun FeedBody() {
 
         )
 
-
 //    val context = LocalContext.current
 //    val activity = context as Activity
 
@@ -177,14 +176,6 @@ fun FeedBody() {
                 }
 
                 MoreOptionsMenu()
-//                Icon(
-//                    painter = painterResource(R.drawable.baseline_menu_24),
-//                    contentDescription = "eye_icon",
-//                    modifier = Modifier.clickable {
-//                      // TODO
-//                    },
-//                    tint = Color.White
-//                )
             }
 
             HorizontalDivider(
@@ -317,11 +308,8 @@ fun MoreOptionsMenu() {
                 .padding(vertical = 0.dp)
                 .clip(RoundedCornerShape(0.dp)),
 
-//            properties = PopupProperties(
-//                focusable = true,
-//                dismissOnClickOutside = true,
-//                clippingEnabled = false
-//            )
+            // if something goes wrong in future, look up "properties = PopupProperties"
+
         ) {
             Column(modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
@@ -384,13 +372,8 @@ fun MoreOptionsMenu() {
                     )
                 }
         }
-
-        }
-
     }
-
-
-
+}
 
 // fun to load feed
 @Composable
@@ -413,8 +396,6 @@ fun Feed(posts: List<Post>) {
         color = Color.White.copy(alpha = 0.3f)
     )
 }
-
-
 
 @Preview
 @Composable
