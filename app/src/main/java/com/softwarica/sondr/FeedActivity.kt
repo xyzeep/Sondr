@@ -1,5 +1,7 @@
 package com.softwarica.sondr
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -135,8 +138,8 @@ fun FeedBody() {
 
         )
 
-//    val context = LocalContext.current
-//    val activity = context as Activity
+    val context = LocalContext.current
+    val activity = context as Activity
 
     Scaffold(
     ) { innerPadding ->
@@ -286,6 +289,10 @@ fun FeedBody() {
 fun MoreOptionsMenu() {
     var expanded by remember { mutableStateOf(true) }
     val bgColor = Color(0xFF242830)
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
     Box(
         modifier = Modifier
             .wrapContentSize(Alignment.TopEnd)
@@ -361,7 +368,12 @@ fun MoreOptionsMenu() {
                         text = {
                             Text("Logout", fontFamily = InterFont, color = Color.Red)
                         },
-                        onClick = { expanded = false },
+                        onClick = {
+                            expanded = false
+                            var intent =  Intent(context, LoginActivity::class.java)
+                            context.startActivity(intent)
+                            activity?.finish()
+                        },
                         leadingIcon = {
                             Icon(
                                 painter = painterResource(R.drawable.baseline_logout_24),
