@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -95,340 +96,361 @@ fun LoginBody() {
 
     Scaffold(
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(color = Color(0xff121212)),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Sondr Logo
-            Image(
-                painter = painterResource(R.drawable.sondr_logo),
-                contentDescription = null,
+            LazyColumn (
                 modifier = Modifier
-                    .height(120.dp)
-                    .width(120.dp)
-                    .padding(top = 20.dp)
-            )
+                    .background(color = Color(0xff121212))
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Sondr Logo
+                item{Image(
+                    painter = painterResource(R.drawable.sondr_logo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(120.dp)
+                        .width(120.dp)
+                        .padding(top = 20.dp)
+                )}
 
-            // Sondr text branding
-            Text(
-                text = "Sondr.",
-                fontSize = 42.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = LoraFont,
-                color = Color.White
-            )
 
-            // slogan
-            Text(
-                text = "Whisper the moment.",
-                fontSize = 14.sp,
-                fontFamily = LoraFont,
-                color = Color.White,
-                modifier = Modifier
-                    .width(268.dp)
-                    .wrapContentWidth(Alignment.End)
-            )
-            Spacer(Modifier.height(15.dp))
-
-            // main elements column
-            Column (
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .width(340.dp)
-            ){
-                // Login
-                Text(
-                    text = "Login",
-                    fontSize = 32.sp,
-                    fontFamily = LoraFont,
+                // Sondr text branding
+                item { Text(
+                    text = "Sondr.",
+                    fontSize = 42.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                )
-                Text(
-                    text = "If you have your sondr code",
-                    fontSize = 16.sp,
                     fontFamily = LoraFont,
-                    color = Color.White,
-                        modifier = Modifier
-                        .padding(bottom = 10.dp)
-                )
-                OutlinedTextField(
-                    value = loginUsername,
-                    onValueChange = { input ->
-                        if (input.length <= 12) {
-                            loginUsername = input
-                        }
-                    },
-                    modifier = Modifier
-                        .width(340.dp)
-                        .height(54.dp)
-                        .border(width = 2.dp, color = Color.White.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp)),
-                    shape = RoundedCornerShape(8.dp),
-                    singleLine = true,
-                    placeholder = {
-                        Text(
-                            text = "Username",
-                            color = Color.White.copy(alpha = 0.5f),
-                            fontFamily = LoraFont,
-                            fontSize = 20.sp
-                        )
-                    },
-                    textStyle = TextStyle(
+                    color = Color.White
+                )}
+
+
+                // slogan
+                item {
+                    Text(
+                        text = "Whisper the moment.",
+                        fontSize = 14.sp,
+                        fontFamily = LoraFont,
                         color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontFamily = LoraFont
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
-                    ),
-                    suffix = {
-                        Text(
-                            text = "${loginUsername.length}/12",
-                            color = Color.White.copy(alpha = 0.5f),
-                            fontSize = 16.sp,
-                            fontFamily = LoraFont
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF1E1E1E),
-                        unfocusedContainerColor = Color(0xFF1E1E1E),
-                        focusedBorderColor = Color(0xFFFFFFFF)
-                    )
-                )
-
-                Spacer(Modifier.height(12.dp))
-                
-                // row for login entry and button
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .width(340.dp)
-                ){
-                    // sondr code
-                    OutlinedTextField(
-                        value = sondrCode,
-                        onValueChange = { input ->
-                            if (input.length <= 8) {
-                                sondrCode = input
-                            }
-
-                        },
-
                         modifier = Modifier
-                            .width(226.dp)
-                            .height(54.dp)
-                            .padding(top = 0.dp)
-                            .border(width = 2.dp, color = Color.White.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp)),
-                        shape = RoundedCornerShape(8.dp),
-                        singleLine = true,
-                        suffix = {
-                            Icon(
-                                painter = painterResource(
-                                    if (sondrCodVisibility) R.drawable.baseline_visibility_off_24 else R.drawable.baseline_visibility_24
-                                ),
-                                contentDescription = "eye_icon",
-                                modifier = Modifier.clickable {
-                                    sondrCodVisibility = !sondrCodVisibility
-                                },
-                                tint = Color.White
-                            )
-                        },
-                        visualTransformation = if (sondrCodVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-                        placeholder = {
-                            Text(
-                                text = "Sondr Code",
-                                color = Color.White.copy(alpha = 0.5f),
-                                fontFamily = LoraFont,
-                                fontSize = 20.sp,
-                                modifier = Modifier
-                                    .align(Alignment.CenterVertically)
-                            )
-                        },
-                        textStyle = TextStyle(
+                            .width(268.dp)
+                            .wrapContentWidth(Alignment.End)
+                    )
+                    Spacer(Modifier.height(15.dp))
+                }
+
+
+                // main elements column
+                item{
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier
+                            .width(340.dp)
+                    ) {
+                        // Login
+                        Text(
+                            text = "Login",
+                            fontSize = 32.sp,
+                            fontFamily = LoraFont,
+                            fontWeight = FontWeight.Bold,
                             color = Color.White,
+                        )
+                        Text(
+                            text = "If you have your sondr code",
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontFamily = LoraFont
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF1E1E1E),
-                            unfocusedContainerColor = Color(0xFF1E1E1E),
-                            focusedBorderColor = Color(0xFFFFFFFF)
+                            fontFamily = LoraFont,
+                            color = Color.White,
+                            modifier = Modifier
+                                .padding(bottom = 10.dp)
+                        )
+                        OutlinedTextField(
+                            value = loginUsername,
+                            onValueChange = { input ->
+                                if (input.length <= 12) {
+                                    loginUsername = input
+                                }
+                            },
+                            modifier = Modifier
+                                .width(340.dp)
+                                .height(54.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color.White.copy(alpha = 0.6f),
+                                    shape = RoundedCornerShape(8.dp)
+                                ),
+                            shape = RoundedCornerShape(8.dp),
+                            singleLine = true,
+                            placeholder = {
+                                Text(
+                                    text = "Username",
+                                    color = Color.White.copy(alpha = 0.5f),
+                                    fontFamily = LoraFont,
+                                    fontSize = 20.sp
+                                )
+                            },
+                            textStyle = TextStyle(
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontFamily = LoraFont
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password
+                            ),
+                            suffix = {
+                                Text(
+                                    text = "${loginUsername.length}/12",
+                                    color = Color.White.copy(alpha = 0.5f),
+                                    fontSize = 16.sp,
+                                    fontFamily = LoraFont
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color(0xFF1E1E1E),
+                                unfocusedContainerColor = Color(0xFF1E1E1E),
+                                focusedBorderColor = Color(0xFFFFFFFF)
+                            )
                         )
 
-                    )
-                    Button(
-                        onClick = {
-                            // TODO: handle login
-                            val intent = Intent(context, FeedActivity::class.java)
-                            //first parameter - key
-                            //second parameter - value
+                        Spacer(Modifier.height(12.dp))
+
+                        // row for login entry and button
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .width(340.dp)
+                        ) {
+                            // sondr code
+                            OutlinedTextField(
+                                value = sondrCode,
+                                onValueChange = { input ->
+                                    if (input.length <= 8) {
+                                        sondrCode = input
+                                    }
+
+                                },
+
+                                modifier = Modifier
+                                    .width(226.dp)
+                                    .height(54.dp)
+                                    .padding(top = 0.dp)
+                                    .border(
+                                        width = 2.dp,
+                                        color = Color.White.copy(alpha = 0.6f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ),
+                                shape = RoundedCornerShape(8.dp),
+                                singleLine = true,
+                                suffix = {
+                                    Icon(
+                                        painter = painterResource(
+                                            if (sondrCodVisibility) R.drawable.baseline_visibility_off_24 else R.drawable.baseline_visibility_24
+                                        ),
+                                        contentDescription = "eye_icon",
+                                        modifier = Modifier.clickable {
+                                            sondrCodVisibility = !sondrCodVisibility
+                                        },
+                                        tint = Color.White
+                                    )
+                                },
+                                visualTransformation = if (sondrCodVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+                                placeholder = {
+                                    Text(
+                                        text = "Sondr Code",
+                                        color = Color.White.copy(alpha = 0.5f),
+                                        fontFamily = LoraFont,
+                                        fontSize = 20.sp,
+                                        modifier = Modifier
+                                            .align(Alignment.CenterVertically)
+                                    )
+                                },
+                                textStyle = TextStyle(
+                                    color = Color.White,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontFamily = LoraFont
+                                ),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Password
+                                ),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = Color(0xFF1E1E1E),
+                                    unfocusedContainerColor = Color(0xFF1E1E1E),
+                                    focusedBorderColor = Color(0xFFFFFFFF)
+                                )
+
+                            )
+                            Button(
+                                onClick = {
+                                    // TODO: handle login
+                                    val intent = Intent(context, FeedActivity::class.java)
+                                    //first parameter - key
+                                    //second parameter - value
 //                            intent.putExtra("email",email)
 //                            intent.putExtra("password",password)
 
-                            context.startActivity(intent)
-                            activity?.finish()
-                        },
+                                    context.startActivity(intent)
+                                    activity?.finish()
+                                },
 
-                        modifier = Modifier
-                            .width(104.dp)
-                            .height(54.dp),
+                                modifier = Modifier
+                                    .width(104.dp)
+                                    .height(54.dp),
 
-                        shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(8.dp),
 
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFFFFFF)
-                        )
-                    ) {
-                        Text(
-                            text = "Login",
-                            color = Color.Black,
-                            fontSize = 20.sp,
-                            fontFamily = LoraFont,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFFFFFFF)
+                                )
+                            ) {
+                                Text(
+                                    text = "Login",
+                                    color = Color.Black,
+                                    fontSize = 20.sp,
+                                    fontFamily = LoraFont,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
 
 
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    thickness = 2.dp,
-                    color = Color.White.copy(alpha = 0.3f)
-                )
-
-                // Register
-                Text(
-                    text = "Register",
-                    fontSize = 32.sp,
-                    fontFamily = LoraFont,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                )
-                Text(
-                    text = "Create an anonymous account.",
-                    fontSize = 16.sp,
-                    fontFamily = LoraFont,
-                    color = Color.White,
-                    modifier = Modifier
-                        .padding(bottom = 10.dp)
-                )
-                // register username
-                OutlinedTextField(
-                    value = registerUsername,
-                    onValueChange = { input ->
-                        if (input.length <= 12) {
-                            registerUsername = input
                         }
-                    },
-                    modifier = Modifier
-                        .width(340.dp)
-                        .height(54.dp)
-                        .border(width = 2.dp, color = Color.White.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp)),
-                    shape = RoundedCornerShape(8.dp),
-                    singleLine = true,
-                    placeholder = {
-                        Text(
-                            text = "Username",
-                            color = Color.White.copy(alpha = 0.5f),
-                            fontFamily = LoraFont,
-                            fontSize = 20.sp
+
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            thickness = 2.dp,
+                            color = Color.White.copy(alpha = 0.3f)
                         )
-                    },
-                    textStyle = TextStyle(
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontFamily = LoraFont
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
-                    ),
-                    suffix = {
+
+                        // Register
                         Text(
-                            text = "${registerUsername.length}/12",
-                            color = Color.White.copy(alpha = 0.5f),
+                            text = "Register",
+                            fontSize = 32.sp,
+                            fontFamily = LoraFont,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            text = "Create an anonymous account.",
+                            fontSize = 16.sp,
+                            fontFamily = LoraFont,
+                            color = Color.White,
+                            modifier = Modifier
+                                .padding(bottom = 10.dp)
+                        )
+                        // register username
+                        OutlinedTextField(
+                            value = registerUsername,
+                            onValueChange = { input ->
+                                if (input.length <= 12) {
+                                    registerUsername = input
+                                }
+                            },
+                            modifier = Modifier
+                                .width(340.dp)
+                                .height(54.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color.White.copy(alpha = 0.6f),
+                                    shape = RoundedCornerShape(8.dp)
+                                ),
+                            shape = RoundedCornerShape(8.dp),
+                            singleLine = true,
+                            placeholder = {
+                                Text(
+                                    text = "Username",
+                                    color = Color.White.copy(alpha = 0.5f),
+                                    fontFamily = LoraFont,
+                                    fontSize = 20.sp
+                                )
+                            },
+                            textStyle = TextStyle(
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontFamily = LoraFont
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password
+                            ),
+                            suffix = {
+                                Text(
+                                    text = "${registerUsername.length}/12",
+                                    color = Color.White.copy(alpha = 0.5f),
+                                    fontSize = 16.sp,
+                                    fontFamily = LoraFont
+                                )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color(0xFF1E1E1E),
+                                unfocusedContainerColor = Color(0xFF1E1E1E),
+                                focusedBorderColor = Color(0xFFFFFFFF)
+                            )
+                        )
+
+                        Spacer(Modifier.height(12.dp))
+                        // register button
+                        Button(
+                            onClick = {
+                                // TODO: handle register
+                            },
+                            modifier = Modifier
+                                .width(340.dp)
+                                .height(54.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFFFFFFF)
+                            )
+                        ) {
+                            Text(
+                                text = "Generate Sondr code",
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                                fontFamily = LoraFont,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            text = "Sondr code is a secret key that is unique for everyone. You will need this code for pretty much anything related to Sondr. Please, keep it safe.",
+                            color = Color.White,
                             fontSize = 16.sp,
                             fontFamily = LoraFont
                         )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF1E1E1E),
-                        unfocusedContainerColor = Color(0xFF1E1E1E),
-                        focusedBorderColor = Color(0xFFFFFFFF)
-                    )
-                )
-                
-                Spacer(Modifier.height(12.dp))
-                // register button
-                Button(
-                    onClick = {
-                        // TODO: handle register
-                    },
-                    modifier = Modifier
-                        .width(340.dp)
-                        .height(54.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFFFFF)
-                    )
-                ) {
-                    Text(
-                        text = "Generate Sondr code",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontFamily = LoraFont,
-                        fontWeight = FontWeight.Bold
-                    )
+
+                        Spacer(Modifier.height(32.dp))
+
+                        // terms and condition
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .width(340.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Checkbox(
+                                checked = termsAndCondition,
+                                onCheckedChange = { termsAndCondition = it },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Color.White,
+                                    checkmarkColor = Color(0xff121212),
+                                    uncheckedColor = Color.White
+                                )
+                            )
+                            Text(
+                                text = "I agree to the Terms and Conditions",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontFamily = LoraFont
+                            )
+                        }
+                        Spacer(Modifier.height(32.dp))
+
+
+                    }
                 }
-                Spacer(Modifier.height(16.dp))
-                Text(text = "Sondr code is a secret key that is unique for everyone. You will need this code for pretty much anything related to Sondr. Please, keep it safe." ,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontFamily = LoraFont
-                )
-
-                Spacer(Modifier.height(68.dp))
-
-                // terms and condition
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .width(340.dp)
-                        .fillMaxWidth()
-                ) {
-                    Checkbox(
-                        checked = termsAndCondition,
-                        onCheckedChange = { termsAndCondition = it },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = Color.White,
-                            checkmarkColor = Color(0xff121212),
-                            uncheckedColor = Color.White
-                        )
-                    )
-                    Text(
-                        text = "I agree to the Terms and Conditions",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontFamily = LoraFont
-                    )
-                }
-
-
-
 
             }
-        }
+
     }
 }
 
