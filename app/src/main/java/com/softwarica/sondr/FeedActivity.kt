@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -45,6 +46,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
@@ -81,9 +84,10 @@ class FeedActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedBody() {
-    val filterOptions = listOf("All", "Whisprs", "Snapshots")
+
     var selectedFilter by remember { mutableStateOf("All") }
 
     data class BottomNavItem(val label: String, val iconResId: Int)
@@ -152,10 +156,59 @@ fun FeedBody() {
     val context = LocalContext.current
     val activity = context as? Activity
 
+    // for top bar
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     Scaffold(
+
+        topBar = {
+            TopAppBar(
+
+                scrollBehavior = scrollBehavior,
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF121212),
+                    navigationIconContentColor = Color.White,
+                    titleContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                ),
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Image(
+                            painter = painterResource(R.drawable.sondr_logo),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(40.dp)
+                                .width(40.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp)) // space between logo and text
+                        Text(
+                            text = "Sondr.",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = LoraFont,
+                            color = Color.White
+                        )
+                    }
+                },
+                actions = {
+                   MoreOptionsMenu()
+                }
+            )
+        },
+
         bottomBar = {
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                thickness = 1.dp,
+                color = Color.White.copy(alpha = 0.3f)
+            )
             NavigationBar (
-                containerColor = Color(0xFF121212)
+                containerColor = Color(0xFF121212),
+                modifier = Modifier
+                    .height(104.dp)
             ){
 
                 bottomNavItems.forEachIndexed { index, item ->
@@ -165,14 +218,14 @@ fun FeedBody() {
                             Icon(
                                 painter = painterResource(id = item.iconResId),
                                 contentDescription = item.label,
-                                modifier = Modifier.size(36.dp), // icon size
+                                modifier = Modifier.size(32.dp), // icon size
                             )
                         },
                         selected = selectedIndex == index,
                         onClick = { selectedIndex = index },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Color.White,
-                            unselectedIconColor = Color.White.copy(alpha = 0.8f),
+                            unselectedIconColor = Color.White.copy(alpha = 0.6f),
                             indicatorColor = Color.Transparent // Optional: no background ripple
                         )
                     )
@@ -189,144 +242,24 @@ fun FeedBody() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.sondr_logo),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .height(40.dp)
-                            .width(40.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp)) // space between logo and text
-                    Text(
-                        text = "Sondr.",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = LoraFont,
-                        color = Color.White
-                    )
-                }
-
-                MoreOptionsMenu()
-            }
-
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth(),
-                thickness = 2.dp,
+                thickness = 1.dp,
                 color = Color.White.copy(alpha = 0.3f)
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                filterOptions.forEach { chip ->
-                    FilterChip(
-                        selected = chip == selectedFilter,
-                        onClick = { selectedFilter = chip },
-                        label = {
-                            Text(
-                                text = chip,
-                                fontWeight = FontWeight.Bold
-                            )
 
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = Color.White.copy(alpha = 0.18f),
-                            labelColor = Color.White,
-                            selectedContainerColor = Color.White,
-                            selectedLabelColor = Color.Black
-                        ),
-                        border = null,
-                    )
-                }
+            Feed(
+                posts = dummyPosts,
+                selectedFilter = selectedFilter,
+                onFilterChange = { selectedFilter = it }
+            )
 
-            }
-
-            Feed(dummyPosts)
-
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .fillMaxHeight(),
-//                verticalAlignment = Alignment.CenterVertically,
-//                horizontalArrangement = Arrangement.SpaceAround
-//            ) {
-//                Icon(
-//                    painter = painterResource(R.drawable.baseline_home_24),
-//                    contentDescription = "home_icon",
-//                    modifier = Modifier
-//                        .size(32.dp)
-//                        .clickable {
-//                        // TODO
-//                    },
-//                    tint = Color.White
-//                )
-//                Icon(
-//                    painter = painterResource(R.drawable.baseline_search_24),
-//                    contentDescription = "search_icon",
-//                    modifier = Modifier
-//                        .size(36.dp)
-//                        .clickable {
-//                        // TODO
-//                    },
-//                    tint = Color.White
-//                )
-//                Icon(
-//                    painter = painterResource(R.drawable.baseline_add_circle_24),
-//                    contentDescription = "add_icon",
-//                    modifier = Modifier
-//                        .size(36.dp)
-//                        .clickable {
-//                        // TODO
-//                    },
-//                    tint = Color.White
-//                )
-//                Icon(
-//                    painter = painterResource(R.drawable.baseline_notifications_none_24),
-//                    contentDescription = "notification_icon",
-//                    modifier = Modifier
-//                        .size(36.dp)
-//                        .clickable {
-//                        // TODO
-//                    },
-//                    tint = Color.White
-//                )
-//                Icon(
-//                    painter = painterResource(R.drawable.baseline_person_outline_24),
-//                    contentDescription = "profile_icon",
-//                    modifier = Modifier
-//                        .size(36.dp)
-//                        .clickable {
-//                        // TODO
-//                    },
-//                    tint = Color.White
-//                )
-//
-//
-//            }
-
-        }
-    }
-}
-
-
+        }}}
 @Composable
 fun MoreOptionsMenu() {
-    var expanded by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) }
     val bgColor = Color(0xFF242830)
 
     val context = LocalContext.current
@@ -356,96 +289,126 @@ fun MoreOptionsMenu() {
 
             // if something goes wrong in future, look up "properties = PopupProperties"
 
-        ) {
+        )  {
             Column(modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
                 .background(bgColor)
             )
 
-                {
-                    DropdownMenuItem(
-                        text = {
-                            Text("Settings", fontFamily = InterFont, color = Color.White)
-                        },
+            {
+                DropdownMenuItem(
+                    text = {
+                        Text("Settings", fontFamily = InterFont, color = Color.White)
+                    },
 
-                        onClick = { expanded = false },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.baseline_settings_24),
-                                contentDescription = "Settings Icon",
-                                tint = Color.White
-                            )
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text("About Sondr.", fontFamily = InterFont, color = Color.White)
-                        },
-                        onClick = { expanded = false },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.baseline_info_24),
-                                contentDescription = "About Icon",
-                                tint = Color.White
-                            )
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text("Help & Support", fontFamily = InterFont, color = Color.White)
-                        },
-                        onClick = { expanded = false },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.baseline_help_24),
-                                contentDescription = "Help Icon",
-                                tint = Color.White
-                            )
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text("Logout", fontFamily = InterFont, color = Color.Red)
-                        },
-                        onClick = {
-                            expanded = false
-                            var intent =  Intent(context, LoginActivity::class.java)
-                            context.startActivity(intent)
-                            activity?.finish()
-                        },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.baseline_logout_24),
-                                contentDescription = "Logout Icon",
-                                tint = Color.Red
-                            )
-                        }
-                    )
-                }
+                    onClick = { expanded = false },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_settings_24),
+                            contentDescription = "Settings Icon",
+                            tint = Color.White
+                        )
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
+                        Text("About Sondr.", fontFamily = InterFont, color = Color.White)
+                    },
+                    onClick = { expanded = false },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_info_24),
+                            contentDescription = "About Icon",
+                            tint = Color.White
+                        )
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
+                        Text("Help & Support", fontFamily = InterFont, color = Color.White)
+                    },
+                    onClick = { expanded = false },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_help_24),
+                            contentDescription = "Help Icon",
+                            tint = Color.White
+                        )
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
+                        Text("Logout", fontFamily = InterFont, color = Color.Red)
+                    },
+                    onClick = {
+                        expanded = false
+                        var intent = Intent(context, LoginActivity::class.java)
+                        context.startActivity(intent)
+                        activity?.finish()
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_logout_24),
+                            contentDescription = "Logout Icon",
+                            tint = Color.Red
+                        )
+                    }
+                )
+
+            }
+
         }
     }
 }
 
 // fun to load feed
 @Composable
-fun Feed(posts: List<Post>) {
+fun Feed(posts: List<Post>, selectedFilter: String, onFilterChange: (String) -> Unit) {
+    val filterOptions = listOf("All", "Whisprs", "Snapshots")
+
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .height(674.dp)
+            .fillMaxHeight()
     ) {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                filterOptions.forEach { chip ->
+                    FilterChip(
+                        selected = chip == selectedFilter,
+                        onClick = { onFilterChange(chip) },
+                        label = {
+                            Text(
+                                text = chip,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = Color.White.copy(alpha = 0.18f),
+                            labelColor = Color.White,
+                            selectedContainerColor = Color.White,
+                            selectedLabelColor = Color.Black
+                        ),
+                        border = null,
+                    )
+                }
+
+            }
+
+        }
         items(posts.size) { index ->
             val post = posts[index]
             PostItem(post = post)
         }
-    }
 
-    HorizontalDivider(
-        modifier = Modifier
-            .fillMaxWidth(),
-        thickness = 1.dp,
-        color = Color.White.copy(alpha = 0.3f)
-    )
+    }
 }
 
 @Preview
