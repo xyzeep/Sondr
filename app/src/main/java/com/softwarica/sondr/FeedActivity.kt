@@ -38,16 +38,22 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -80,6 +86,20 @@ fun FeedBody() {
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
     var selectedFilter by remember { mutableStateOf("All") }
 
+    data class BottomNavItem(val label: String, val iconResId: Int)
+    var selectedIndex by remember { mutableIntStateOf(0) }
+
+    val bottomNavItems = listOf(
+        BottomNavItem("Home", R.drawable.baseline_home_24),
+        BottomNavItem("Search", R.drawable.baseline_search_24),
+        BottomNavItem("Create", R.drawable.baseline_add_circle_24),
+        BottomNavItem("Notifications", R.drawable.baseline_notifications_none_24),
+        BottomNavItem("Profile", R.drawable.baseline_person_outline_24)
+
+
+
+    )
+
     val dummyPosts = listOf(
         Post(
             postId = "snap-0x4f5ts5",
@@ -90,15 +110,6 @@ fun FeedBody() {
             likes = 42,
             author = "oggyboggy"
         ),
-//        Post(
-//            postId = "snap-0x4f5ts5",
-//            time = "12 min ago",
-//            caption = "when the silence speaks 🫀🫀",
-//            type = PostType.WHISPR,
-//            mediaRes = R.drawable.audiowaveform, // placeholder for whispr UI
-//            likes = 77,
-//            author = "TheAluEater"
-//        ),
         Post(
             postId = "snap-0x5g5ts5",
             time = "3 min ago",
@@ -139,9 +150,36 @@ fun FeedBody() {
         )
 
     val context = LocalContext.current
-    val activity = context as Activity
+    val activity = context as? Activity
 
     Scaffold(
+        bottomBar = {
+            NavigationBar (
+                containerColor = Color(0xFF121212)
+            ){
+
+                bottomNavItems.forEachIndexed { index, item ->
+                    val selected = selectedIndex == index
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = item.iconResId),
+                                contentDescription = item.label,
+                                modifier = Modifier.size(36.dp), // icon size
+                            )
+                        },
+                        selected = selectedIndex == index,
+                        onClick = { selectedIndex = index },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color.White,
+                            unselectedIconColor = Color.White.copy(alpha = 0.8f),
+                            indicatorColor = Color.Transparent // Optional: no background ripple
+                        )
+                    )
+                }
+            }
+
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -220,70 +258,71 @@ fun FeedBody() {
 
             Feed(dummyPosts)
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.baseline_home_24),
-                    contentDescription = "home_icon",
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clickable {
-                        // TODO
-                    },
-                    tint = Color.White
-                )
-                Icon(
-                    painter = painterResource(R.drawable.baseline_search_24),
-                    contentDescription = "search_icon",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clickable {
-                        // TODO
-                    },
-                    tint = Color.White
-                )
-                Icon(
-                    painter = painterResource(R.drawable.baseline_add_circle_24),
-                    contentDescription = "add_icon",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clickable {
-                        // TODO
-                    },
-                    tint = Color.White
-                )
-                Icon(
-                    painter = painterResource(R.drawable.baseline_notifications_none_24),
-                    contentDescription = "notification_icon",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clickable {
-                        // TODO
-                    },
-                    tint = Color.White
-                )
-                Icon(
-                    painter = painterResource(R.drawable.baseline_person_outline_24),
-                    contentDescription = "profile_icon",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clickable {
-                        // TODO
-                    },
-                    tint = Color.White
-                )
-
-
-                }
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .fillMaxHeight(),
+//                verticalAlignment = Alignment.CenterVertically,
+//                horizontalArrangement = Arrangement.SpaceAround
+//            ) {
+//                Icon(
+//                    painter = painterResource(R.drawable.baseline_home_24),
+//                    contentDescription = "home_icon",
+//                    modifier = Modifier
+//                        .size(32.dp)
+//                        .clickable {
+//                        // TODO
+//                    },
+//                    tint = Color.White
+//                )
+//                Icon(
+//                    painter = painterResource(R.drawable.baseline_search_24),
+//                    contentDescription = "search_icon",
+//                    modifier = Modifier
+//                        .size(36.dp)
+//                        .clickable {
+//                        // TODO
+//                    },
+//                    tint = Color.White
+//                )
+//                Icon(
+//                    painter = painterResource(R.drawable.baseline_add_circle_24),
+//                    contentDescription = "add_icon",
+//                    modifier = Modifier
+//                        .size(36.dp)
+//                        .clickable {
+//                        // TODO
+//                    },
+//                    tint = Color.White
+//                )
+//                Icon(
+//                    painter = painterResource(R.drawable.baseline_notifications_none_24),
+//                    contentDescription = "notification_icon",
+//                    modifier = Modifier
+//                        .size(36.dp)
+//                        .clickable {
+//                        // TODO
+//                    },
+//                    tint = Color.White
+//                )
+//                Icon(
+//                    painter = painterResource(R.drawable.baseline_person_outline_24),
+//                    contentDescription = "profile_icon",
+//                    modifier = Modifier
+//                        .size(36.dp)
+//                        .clickable {
+//                        // TODO
+//                    },
+//                    tint = Color.White
+//                )
+//
+//
+//            }
 
         }
     }
 }
+
 
 @Composable
 fun MoreOptionsMenu() {
