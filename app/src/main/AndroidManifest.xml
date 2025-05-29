@@ -13,6 +13,17 @@
         android:theme="@style/Theme.Sondr"
         tools:targetApi="31">
         <activity
+            android:name=".NavigationActivity"
+            android:exported="true"
+            android:label="@string/title_activity_navigation"
+            android:theme="@style/Theme.Sondr">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".PostSnapshotActivity"
             android:exported="true"
             android:label="@string/title_activity_post_snapshot"
@@ -46,7 +57,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FeedActivity"
+            android:name=".pages.FeedActivity"
             android:exported="true"
             android:label="@string/title_activity_feed"
             android:theme="@style/Theme.Sondr">

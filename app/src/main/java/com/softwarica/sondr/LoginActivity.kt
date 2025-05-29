@@ -44,8 +44,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import com.softwarica.sondr.ui.theme.LoraFont
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -282,7 +280,7 @@ fun LoginBody() {
                             Button(
                                 onClick = {
                                     // TODO: handle login
-                                    val intent = Intent(context, FeedActivity::class.java)
+                                    val intent = Intent(context, NavigationActivity::class.java)
                                     //first parameter - key
                                     //second parameter - value
 //                            intent.putExtra("email",email)

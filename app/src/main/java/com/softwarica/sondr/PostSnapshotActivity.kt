@@ -122,7 +122,7 @@ fun PostSnapshotBody() {
             item {
                 Text(
                     text = "Ready to Share?",
-                    fontSize = 28.sp,
+                    fontSize = 24.sp,
                     fontFamily = InterFont,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -142,7 +142,7 @@ fun PostSnapshotBody() {
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .height(260.dp)
+                            .height(278.dp)
                             .padding(vertical = 12.dp)
                             .clip(shape = RoundedCornerShape(8.dp))
                             .background(color = Color.White)
@@ -156,7 +156,7 @@ fun PostSnapshotBody() {
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(104.dp)
+                            .height(92.dp)
                             .border(width = 2.dp, color = Color.White.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp)),
                         shape = RoundedCornerShape(8.dp),
                         placeholder = {
@@ -200,7 +200,7 @@ fun PostSnapshotBody() {
                         Text(
                             text = "NSFW post",
                             color = Color.White,
-                            fontSize = 24.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = InterFont
                         )
@@ -230,7 +230,7 @@ fun PostSnapshotBody() {
                         Text(
                             text = "Private post",
                             color = Color.White,
-                            fontSize = 24.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = InterFont
                         )
