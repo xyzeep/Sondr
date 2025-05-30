@@ -1,5 +1,4 @@
 package com.softwarica.sondr
-
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -38,11 +37,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +51,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.pages.HomeFeedPage
+import com.softwarica.sondr.pages.SearchBar
+import com.softwarica.sondr.pages.SearchPage
 import com.softwarica.sondr.ui.theme.InterFont
 import com.softwarica.sondr.ui.theme.LoraFont
 
@@ -69,12 +72,11 @@ class NavigationActivity : ComponentActivity() {
 @Composable
 fun NavigationBody() {
     data class BottomNavItem(val label: String, val iconResId: Int)
-
     var selectedIndex by remember { mutableIntStateOf(0) }
+    // change this to 0
 
     val context = LocalContext.current
     val activity = context as? Activity
-
 
     val bottomNavItems = listOf(
         BottomNavItem("Home", R.drawable.baseline_home_24),
@@ -91,8 +93,8 @@ fun NavigationBody() {
     Scaffold(
 
         topBar = {
+            if (0 == selectedIndex) {
             TopAppBar(
-
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFF121212),
@@ -125,6 +127,7 @@ fun NavigationBody() {
                     MoreOptionsMenu()
                 }
             )
+            }
         },
 
         bottomBar = {
@@ -153,14 +156,17 @@ fun NavigationBody() {
                     )
                 }
             }
-
         }
+
     ) { innerPadding ->
         Box(modifier = Modifier
+
+            .background(Color(0xFF121212))
             .padding(innerPadding)
             .fillMaxSize()) {
             when (selectedIndex) {
                 0 -> HomeFeedPage()
+                1 -> SearchPage()
             }
         }
     }
@@ -182,7 +188,9 @@ fun MoreOptionsMenu() {
         Icon(
             painter = painterResource(R.drawable.baseline_menu_24),
             contentDescription = "menu_icon",
-            modifier = Modifier.clickable {
+            modifier = Modifier
+                .padding(horizontal = 6.dp)
+                .clickable {
                 expanded = true
             },
             tint = Color.White

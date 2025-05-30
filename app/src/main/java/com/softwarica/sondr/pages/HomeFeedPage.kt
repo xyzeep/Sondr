@@ -1,6 +1,5 @@
 package com.softwarica.sondr.pages
 
-
 import com.softwarica.sondr.ui.model.Post
 import androidx.compose.foundation.background
 import androidx.compose.runtime.getValue
@@ -30,9 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.softwarica.sondr.R
 import com.softwarica.sondr.ui.components.PostItem
 import com.softwarica.sondr.ui.model.PostType
-
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,25 +85,25 @@ fun HomeFeedPage() {
             author = "fartSmella"
         )
 
-        )
+    )
 
     val context = LocalContext.current
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(0xff121212)),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color(0xff121212)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-            Feed(
-                posts = dummyPosts,
-                selectedFilter = selectedFilter,
-                onFilterChange = { selectedFilter = it }
-            )
+        Feed(
+            posts = dummyPosts,
+            selectedFilter = selectedFilter,
+            onFilterChange = { selectedFilter = it }
+        )
 
-        }}
-
+    }
+}
 
 // fun to load feed
 @Composable
@@ -155,6 +151,5 @@ fun Feed(posts: List<Post>, selectedFilter: String, onFilterChange: (String) -> 
             val post = posts[index]
             PostItem(post = post)
         }
-
     }
 }
