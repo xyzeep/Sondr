@@ -1,4 +1,4 @@
-package com.softwarica.sondr.pages
+package com.softwarica.sondr.view.pages
 
 import com.softwarica.sondr.ui.model.Post
 import androidx.compose.foundation.background

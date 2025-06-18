@@ -1,4 +1,4 @@
- package com.softwarica.sondr
+package com.softwarica.sondr.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -1,4 +1,4 @@
-package com.softwarica.sondr
+package com.softwarica.sondr.view
 
 import android.app.Activity
 import android.content.Intent
@@ -52,6 +52,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.softwarica.sondr.R
 
 
 // main class
@@ -135,8 +136,7 @@ fun LoginBody() {
                     )
                     Spacer(Modifier.height(15.dp))
                 }
-
-
+                
                 // main elements column
                 item{
                     Column(

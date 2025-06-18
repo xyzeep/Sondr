@@ -1,4 +1,4 @@
-package com.softwarica.sondr.pages
+package com.softwarica.sondr.view.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

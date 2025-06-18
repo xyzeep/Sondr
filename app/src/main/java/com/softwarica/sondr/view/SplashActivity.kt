@@ -1,4 +1,4 @@
-package com.softwarica.sondr
+package com.softwarica.sondr.view
 
 import android.app.Activity
 import android.content.Context
@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.softwarica.sondr.R
 import kotlinx.coroutines.delay
 
 class SplashActivity : ComponentActivity() {
