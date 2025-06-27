@@ -1,6 +1,7 @@
 package com.softwarica.sondr.view
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -94,6 +95,7 @@ fun LoginBody() {
     val userRepository = remember { UserRepositoryImpl() }
 
     val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
     val activity = context as? Activity
 
 
@@ -286,6 +288,10 @@ fun LoginBody() {
 
                                     userRepository.login(loginUsername, sondrCode) { success, message ->
                                         if (success) {
+                                            sharedPreferences.edit().apply {
+                                                putString("currentUsername", loginUsername)   // store the username
+                                                apply()
+                                            }
                                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 
                                             val intent = Intent(context, NavigationActivity::class.java)
@@ -295,7 +301,7 @@ fun LoginBody() {
                                             context.startActivity(intent)
                                             activity?.finish()
                                         } else {
-                                            Toast.makeText(context, "Login failed: $message", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, "Error: $message", Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 },

@@ -72,6 +72,7 @@ class UserRepositoryImpl : UserRepository {
                         val userModel = UserModel(
                             userID = userID,
                             username = username,
+                            name = username, // default name is the username
                             sondrCode = code
                         )
 

@@ -52,6 +52,7 @@ import com.softwarica.sondr.view.pages.HomeFeedPage
 import com.softwarica.sondr.view.pages.SearchPage
 import com.softwarica.sondr.ui.theme.InterFont
 import com.softwarica.sondr.ui.theme.LoraFont
+import com.softwarica.sondr.view.pages.ProfileScreen
 
 
 // main class
@@ -164,6 +165,7 @@ fun NavigationBody() {
             when (selectedIndex) {
                 0 -> HomeFeedPage()
                 1 -> SearchPage()
+                4 -> ProfileScreen()
             }
         }
     }
