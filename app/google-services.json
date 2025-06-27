@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "406241144189",
+    "firebase_url": "https://sondr-bb384-default-rtdb.firebaseio.com",
+    "project_id": "sondr-bb384",
+    "storage_bucket": "sondr-bb384.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:406241144189:android:63f8172847fa0c572df014",
+        "android_client_info": {
+          "package_name": "com.softwarica.sondr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRN1Xj1N2VGsUJZkuSOgApN_TjHPrpfMc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
