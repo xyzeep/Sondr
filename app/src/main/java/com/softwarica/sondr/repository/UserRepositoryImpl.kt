@@ -19,7 +19,6 @@ class UserRepositoryImpl : UserRepository {
         callback: (Boolean, String) -> Unit
     ) {
         // query users where username equals given username
-
         usersRef.orderByChild("username").equalTo(username).get()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -49,9 +48,11 @@ class UserRepositoryImpl : UserRepository {
     }
 
     override fun register(
+
         username: String,
         callback: (Boolean, String, String) -> Unit
     ) {
+        println("Register called with username: $username")
         // check if the username already exists
         usersRef.orderByChild("username").equalTo(username).get()
             .addOnSuccessListener { snapshot ->
@@ -71,6 +72,7 @@ class UserRepositoryImpl : UserRepository {
                         val userModel = UserModel(
                             userID = userID,
                             username = username,
+                            name = username, // default name is the username
                             sondrCode = code
                         )
 

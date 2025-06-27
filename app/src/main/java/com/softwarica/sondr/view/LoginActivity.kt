@@ -1,8 +1,10 @@
 package com.softwarica.sondr.view
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -53,6 +55,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.R
+import com.softwarica.sondr.repository.UserRepository
+import com.softwarica.sondr.repository.UserRepositoryImpl
 
 
 // main class
@@ -88,8 +92,10 @@ fun LoginBody() {
         mutableStateOf(false)
     }
 
+    val userRepository = remember { UserRepositoryImpl() }
 
     val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
     val activity = context as? Activity
 
 
@@ -163,7 +169,7 @@ fun LoginBody() {
                         OutlinedTextField(
                             value = loginUsername,
                             onValueChange = { input ->
-                                if (input.length <= 12) {
+                                if (input.length <= 30) {
                                     loginUsername = input
                                 }
                             },
@@ -194,14 +200,6 @@ fun LoginBody() {
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Password
                             ),
-                            suffix = {
-                                Text(
-                                    text = "${loginUsername.length}/12",
-                                    color = Color.White.copy(alpha = 0.5f),
-                                    fontSize = 16.sp,
-                                    fontFamily = LoraFont
-                                )
-                            },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = Color(0xFF1E1E1E),
                                 unfocusedContainerColor = Color(0xFF1E1E1E),
@@ -279,15 +277,33 @@ fun LoginBody() {
                             )
                             Button(
                                 onClick = {
-                                    // TODO: handle login
-                                    val intent = Intent(context, NavigationActivity::class.java)
-                                    //first parameter - key
-                                    //second parameter - value
-//                            intent.putExtra("email",email)
-//                            intent.putExtra("password",password)
+                                    if (loginUsername.isBlank()) {
+                                        Toast.makeText(context, "Username cannot be empty.", Toast.LENGTH_SHORT).show()
+                                        return@Button
+                                    }
+                                    if (sondrCode.isBlank()) {
+                                        Toast.makeText(context, "Sondr Code cannot be empty", Toast.LENGTH_SHORT).show()
+                                        return@Button
+                                    }
 
-                                    context.startActivity(intent)
-                                    activity?.finish()
+                                    userRepository.login(loginUsername, sondrCode) { success, message ->
+                                        if (success) {
+                                            sharedPreferences.edit().apply {
+                                                putString("currentUsername", loginUsername)   // store the username
+                                                apply()
+                                            }
+                                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+
+                                            val intent = Intent(context, NavigationActivity::class.java)
+
+                                            // optionally pass user data with intent
+                                            intent.putExtra("username", loginUsername)
+                                            context.startActivity(intent)
+                                            activity?.finish()
+                                        } else {
+                                            Toast.makeText(context, "Error: $message", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
                                 },
 
                                 modifier = Modifier
@@ -373,7 +389,7 @@ fun LoginBody() {
                             ),
                             suffix = {
                                 Text(
-                                    text = "${registerUsername.length}/12",
+                                    text = "${registerUsername.length}/30",
                                     color = Color.White.copy(alpha = 0.5f),
                                     fontSize = 16.sp,
                                     fontFamily = LoraFont
@@ -390,7 +406,18 @@ fun LoginBody() {
                         // register button
                         Button(
                             onClick = {
-                                // TODO: handle register
+                                if (registerUsername.isBlank()) {
+                                    Toast.makeText(context, "Username cannot be empty", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+                                userRepository.register(registerUsername) { success, message, code ->
+                                    if (success) {
+                                        Toast.makeText(context, "Registered Successfully!", Toast.LENGTH_LONG).show()
+                                        registerUsername = ""
+                                    } else {
+                                        Toast.makeText(context, "Error: $message", Toast.LENGTH_LONG).show()
+                                    }
+                                }
                             },
                             modifier = Modifier
                                 .width(340.dp)
