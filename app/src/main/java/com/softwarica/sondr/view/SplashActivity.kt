@@ -1,214 +1,95 @@
+// splashscreen
+
 package com.softwarica.sondr.view
 
-import android.app.Activity
-import android.content.Context
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.softwarica.sondr.R
-import com.softwarica.sondr.view.MainActivity
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Text
-import androidx.compose.ui.unit.sp
-import com.softwarica.sondr.ui.theme.LoraFont
-
+import com.softwarica.sondr.ui.theme.SondrTheme
 import kotlinx.coroutines.delay
 
+@SuppressLint("CustomSplashScreen")
 class SplashActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SplashBody()
+            SondrTheme {
+                SplashScreen {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }
+            }
         }
     }
 }
 
 @Composable
-fun SplashBody() {
-//    val context = LocalContext.current
-//    val activity = context as Activity
-//
-//    val sharedPreferences = context.getSharedPreferences(
-//        "User",
-//        Context.MODE_PRIVATE
-//    )
-//
-//    val editor = sharedPreferences.edit()
-//
-//    val localEmail : String = sharedPreferences.getString("email","").toString()
-//
-//    LaunchedEffect(Unit) {
-//        delay(2000)
-//
-//        if(localEmail.isEmpty()){
-//            val intent = Intent(context, LoginActivity::class.java)
-//            context.startActivity(intent)
-//            activity.finish()
-//        }else{
-//            val intent = Intent(context, MainActivity::class.java)
-//            context.startActivity(intent)
-//            activity.finish()
-//        }
-//
-//
-//    }
+fun SplashScreen(onTimeout: () -> Unit) {
+    val scale = remember { Animatable(0f) }
 
-    Scaffold { innerPadding ->
-        Column(
+    LaunchedEffect(true) {
+        scale.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 800, easing = {
+                val overshoot = 1.2f
+                overshoot * (1 - (1 - it) * (1 - it))
+            })
+        )
+        delay(1500)
+        onTimeout()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.sondr_logo),
+            contentDescription = "Logo",
             modifier = Modifier
-                .padding(innerPadding)
+                .size(150.dp)
+                .scale(scale.value)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SplashScreenPreview() {
+    SondrTheme {
+        Box(
+            modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.sondr_logo),
-                contentDescription = null
-            )
-            Text(
-                text = "Whisper the moment.",
-                fontSize = 14.sp,
-                fontFamily = LoraFont,
-                color = Color.White,
-                modifier = Modifier
-                    .width(268.dp)
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            CircularProgressIndicator(
-                modifier = Modifier.size(64.dp),
-                strokeWidth = 6.dp,
-                color = Color.White
-
+                painter = painterResource(id = R.drawable.sondr_logo),
+                contentDescription = "Logo",
+                modifier = Modifier.size(150.dp)
             )
         }
     }
 }
 
-@Preview
-@Composable
-fun PrevSplash() {
-    SplashBody()
-}
-
-
-//
-//////////////////////
-//
-//import android.app.Activity
-//import android.content.Context
-//import android.content.Intent
-//import android.os.Bundle
-//import androidx.activity.ComponentActivity
-//import androidx.activity.compose.setContent
-//import androidx.activity.enableEdgeToEdge
-//import androidx.compose.foundation.Image
-//import androidx.compose.foundation.layout.Arrangement
-//import androidx.compose.foundation.layout.Column
-//import androidx.compose.foundation.layout.Spacer
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.foundation.layout.height
-//import androidx.compose.foundation.layout.padding
-//import androidx.compose.material3.CircularProgressIndicator
-//import androidx.compose.material3.Scaffold
-//import androidx.compose.runtime.Composable
-//import androidx.compose.runtime.LaunchedEffect
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.platform.LocalContext
-//import androidx.compose.ui.res.painterResource
-//import androidx.compose.ui.tooling.preview.Preview
-//import androidx.compose.ui.unit.dp
-//import com.softwarica.sondr.R
-//import kotlinx.coroutines.delay
-//
-//class SplashActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-//        setContent {
-//            SplashBody()
-//        }
-//    }
-//}
-//
-//@Composable
-//fun SplashBody() {
-//    val context = LocalContext.current
-//    val activity = context as Activity
-//
-//    val sharedPreferences = context.getSharedPreferences(
-//        "User",
-//        Context.MODE_PRIVATE
-//    )
-//
-//    val editor = sharedPreferences.edit()
-//
-//    val localEmail : String = sharedPreferences.getString("email","").toString()
-//
-//    LaunchedEffect(Unit) {
-//        delay(2000)
-//
-//        if(localEmail.isEmpty()){
-//            val intent = Intent(context, LoginActivity::class.java)
-//            context.startActivity(intent)
-//            activity.finish()
-//        }else{
-//            val intent = Intent(context, NavigationActivity::class.java)
-//            context.startActivity(intent)
-//            activity.finish()
-//        }
-//
-//
-//    }
-//
-//    Scaffold { innerPadding ->
-//        Column(
-//            modifier =
-//                Modifier
-//                    .padding(innerPadding)
-//                    .fillMaxSize(),
-//            verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Image(
-//                painter = painterResource(R.drawable.sondr_logo),
-//                contentDescription = null
-//            )
-//            Spacer(modifier = Modifier.height(10.dp))
-//            CircularProgressIndicator()
-//        }
-//    }
-//}
-//
-//@Preview
-//@Composable
-//fun PrevSplash() {
-//    SplashBody()
-//}
