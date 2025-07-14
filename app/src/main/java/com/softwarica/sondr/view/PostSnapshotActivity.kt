@@ -1,5 +1,6 @@
 package com.softwarica.sondr.view
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,26 +38,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.softwarica.sondr.ui.theme.InterFont
 
 class PostSnapshotActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val photoUriString = intent.getStringExtra("photoUri")
+        val photoUri = photoUriString?.let { Uri.parse(it) }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PostSnapshotBody()
+            PostSnapshotBody(photoUri)
         }
     }
 }
 
 @Composable
-fun PostSnapshotBody() {
+fun PostSnapshotBody(photoUri: Uri?) {
     var snapshotCaption by remember { mutableStateOf("") }
     var nsfw by remember { mutableStateOf(true) }
     var private by remember { mutableStateOf(false) }
@@ -138,7 +143,26 @@ fun PostSnapshotBody() {
                             .padding(vertical = 12.dp)
                             .clip(shape = RoundedCornerShape(8.dp))
                             .background(color = Color.White)
-                    )
+                    ){
+                        photoUri?.let {
+                            AsyncImage(
+                                model = it,
+                                contentDescription = "Captured Snapshot",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(278.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                        } ?: Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(278.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White)
+                        )
+
+                    }
                     OutlinedTextField(
                         value = snapshotCaption,
                         onValueChange = { input ->
@@ -268,7 +292,7 @@ fun PostSnapshotBody() {
                         )
                     ) {
                         Text(
-                            text = "Cancel",
+                            text = "Retake",
                             color = Color.White,
                             fontSize = 28.sp,
                             fontFamily = InterFont,
@@ -315,5 +339,5 @@ fun PostSnapshotBody() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewPostSnapshot() {
-    PostSnapshotBody()
+    PostSnapshotBody(photoUri = null)
 }

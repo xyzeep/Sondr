@@ -319,6 +319,12 @@ fun MoreOptionsMenu() {
                     },
                     onClick = {
                         expanded = false
+                        // Reset isLoggedIn in SharedPreferences
+                        val sharedPreferences = context.getSharedPreferences("sondr_prefs", android.content.Context.MODE_PRIVATE)
+                        sharedPreferences.edit().apply {
+                            putBoolean("isLoggedIn", false)
+                            apply()
+                        }
                         var intent = Intent(context, LoginActivity::class.java)
                         context.startActivity(intent)
                         activity?.finish()
