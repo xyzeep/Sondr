@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
+    implementation("androidx.core:core-ktx:1.13.1")
     implementation(libs.camerax.view)
     implementation(libs.camerax.extensions)
     androidTestImplementation(libs.androidx.junit)

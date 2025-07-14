@@ -13,11 +13,14 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
-fun CameraPreview() {
+fun CameraPreview(
+    isFrontCamera: Boolean // passed from parent
+) {
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    androidx.compose.runtime.key(isFrontCamera) {
     AndroidView(
         factory = { ctx ->
             val previewView = PreviewView(ctx)
@@ -30,7 +33,12 @@ fun CameraPreview() {
                 preview.setSurfaceProvider(previewView.surfaceProvider)
 
 
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                // Flip camera based on boolean
+                val cameraSelector = if (isFrontCamera) {
+                    CameraSelector.DEFAULT_FRONT_CAMERA
+                } else {
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                }
 
                 try {
                     cameraProvider.unbindAll()
@@ -49,4 +57,5 @@ fun CameraPreview() {
         },
         modifier = Modifier.fillMaxSize()
     )
+    }
 }

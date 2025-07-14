@@ -76,7 +76,7 @@ class TakeSnapshotActivity : ComponentActivity() {
 fun TakeSnapshotBody(
 ) {
 
-
+    val isFrontCamera = remember { mutableStateOf(false) }
     val context = LocalContext.current
     val activity = context as? Activity
     val aspectRatio by remember { mutableStateOf("3:4") }
@@ -129,7 +129,7 @@ fun TakeSnapshotBody(
                     .fillMaxWidth()
                     .background(Color.DarkGray)
             ) {
-                CameraPreview() // This is where the camera preview will be displayed
+                CameraPreview(isFrontCamera = isFrontCamera.value)  // This is where the camera preview will be displayed
             }
 
             // Bottom bar with 3 buttons
@@ -173,14 +173,16 @@ fun TakeSnapshotBody(
                     )
                 }
 
-                // Invert camera button - use icon
+                // flip camera button - use icon
                 Icon(
                     painter = painterResource(R.drawable.baseline_flip_camera_android_24),
-                    contentDescription = "Invert Camera",
+                    contentDescription = "Flip Camera",
                     tint = Color.White,
                     modifier = Modifier
                         .size(36.dp)
-                        .clickable { }
+                        .clickable {
+                            isFrontCamera.value = !isFrontCamera.value
+                        }
                 )
             }
         }
