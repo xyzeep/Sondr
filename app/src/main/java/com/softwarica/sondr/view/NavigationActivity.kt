@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -72,6 +74,9 @@ fun NavigationBody() {
     data class BottomNavItem(val label: String, val iconResId: Int)
     var selectedIndex by remember { mutableIntStateOf(0) }
     // change this to 0
+
+    // for create menu options
+    var showCreateMenu by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val activity = context as? Activity
@@ -145,7 +150,14 @@ fun NavigationBody() {
                             )
                         },
                         selected = selectedIndex == index,
-                        onClick = { selectedIndex = index },
+                        onClick = {
+                            if (index == 2) {
+                                showCreateMenu = !showCreateMenu
+                            } else {
+                                selectedIndex = index
+                                showCreateMenu = false
+                            }
+                        },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Color.White,
                             unselectedIconColor = Color.White.copy(alpha = 0.6f),
@@ -167,6 +179,55 @@ fun NavigationBody() {
                 1 -> SearchPage()
                 4 -> ProfileScreen()
             }
+
+            if (showCreateMenu) {
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .width(150.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFF242830))
+                        ) {
+                            // first menu item
+                            Box(
+                                modifier = Modifier
+                                    .clickable {
+                                        showCreateMenu = false
+                                        // TODO: Navigate to Whispr
+                                    }
+                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                            ) {
+                                Text("Whispr", fontFamily = InterFont, color = Color.White, fontSize = 18.sp)
+                            }
+
+                            // Divider
+                            HorizontalDivider(thickness = 1.dp, color = Color.White.copy(alpha = 0.2f))
+
+                            // another item
+                            Box(
+                                modifier = Modifier
+                                    .clickable {
+                                        showCreateMenu = false
+                                        // TODO: Navigate to Snapshot
+                                    }
+                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                            ) {
+                                Text("Snapshot", fontFamily = InterFont, color = Color.White, fontSize = 18.sp)
+                            }
+                        }
+                    }
+                }
+
+
+
+
+
         }
     }
 }
