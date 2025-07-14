@@ -63,6 +63,15 @@ import com.softwarica.sondr.repository.UserRepositoryImpl
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val sharedPreferences = getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
+        val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
+        if (isLoggedIn) {
+            // User is already logged in, go to NavigationActivity
+            val intent = Intent(this, NavigationActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
         enableEdgeToEdge()
         setContent {
             LoginBody()
@@ -290,12 +299,11 @@ fun LoginBody() {
                                         if (success) {
                                             sharedPreferences.edit().apply {
                                                 putString("currentUsername", loginUsername)   // store the username
+                                                putBoolean("isLoggedIn", true) // store login state
                                                 apply()
                                             }
                                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-
                                             val intent = Intent(context, NavigationActivity::class.java)
-
                                             // optionally pass user data with intent
                                             intent.putExtra("username", loginUsername)
                                             context.startActivity(intent)
