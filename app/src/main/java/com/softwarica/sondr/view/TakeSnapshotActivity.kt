@@ -1,5 +1,5 @@
 package com.softwarica.sondr.view
-
+import androidx.camera.core.AspectRatio
 import android.os.Bundle
 import android.Manifest
 import android.content.pm.PackageManager
@@ -13,6 +13,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.platform.LocalContext
 import android.app.Activity
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.R
 import com.softwarica.sondr.ui.theme.InterFont
 import com.softwarica.sondr.utils.CameraPreview
+import com.softwarica.sondr.utils.takePhoto
 
 class TakeSnapshotActivity : ComponentActivity() {
     private val requestPermissionLauncher =
@@ -79,7 +82,10 @@ fun TakeSnapshotBody(
     val isFrontCamera = remember { mutableStateOf(false) }
     val context = LocalContext.current
     val activity = context as? Activity
-    val aspectRatio by remember { mutableStateOf("3:4") }
+    val aspectRatio = remember { mutableStateOf("3:4") }
+
+    val cameraAspectRatio = remember { mutableStateOf(AspectRatio.RATIO_4_3) }
+
 
     Scaffold { innerPadding ->
         Column(
@@ -126,10 +132,14 @@ fun TakeSnapshotBody(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
-                    .background(Color.DarkGray)
+//                    .fillMaxWidth()
+                    .background(Color(0xff121212)),
+                contentAlignment = Alignment.Center
             ) {
-                CameraPreview(isFrontCamera = isFrontCamera.value)  // This is where the camera preview will be displayed
+                CameraPreview(
+                    isFrontCamera = isFrontCamera.value,
+                    aspectRatio = aspectRatio.value
+                )  // This is where the camera preview will be displayed
             }
 
             // Bottom bar with 3 buttons
@@ -146,11 +156,20 @@ fun TakeSnapshotBody(
                     modifier = Modifier
                         .size(48.dp)
                         .border(2.dp, Color.White, shape = RectangleShape)
-                        .clickable {  },
+                        .clickable {
+                            // Toggle aspect ratio on each click
+                            if (aspectRatio.value == "3:4") {
+                                aspectRatio.value = "9:16"
+                                cameraAspectRatio.value = AspectRatio.RATIO_16_9
+                            } else {
+                                aspectRatio.value = "3:4"
+                                cameraAspectRatio.value = AspectRatio.RATIO_4_3
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = aspectRatio,
+                        text = aspectRatio.value,
                         color = Color.White,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
@@ -162,7 +181,20 @@ fun TakeSnapshotBody(
                     modifier = Modifier
                         .size(64.dp)
                         .border(4.dp, Color.White, shape = CircleShape)
-                        .clickable {},
+                        .clickable {
+                            takePhoto(context) { uri ->
+                                if (uri != null) {
+                                   // got the photo
+                                    val intent = Intent(context, PostSnapshotActivity::class.java).apply {
+                                        putExtra("photoUri", uri.toString())
+                                    }
+                                    context.startActivity(intent)
+
+                                } else {
+                                    Toast.makeText(context, "Failed to take photo", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     // Inner smaller black circle
