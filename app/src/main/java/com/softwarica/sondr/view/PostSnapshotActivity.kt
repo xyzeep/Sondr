@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,6 +66,8 @@ fun PostSnapshotBody(photoUri: Uri?) {
     var snapshotCaption by remember { mutableStateOf("") }
     var nsfw by remember { mutableStateOf(true) }
     var private by remember { mutableStateOf(false) }
+    var isFullscreen by remember { mutableStateOf(false) }
+
 
 
     Scaffold { innerPadding ->
@@ -143,7 +146,8 @@ fun PostSnapshotBody(photoUri: Uri?) {
                             .padding(vertical = 12.dp)
                             .clip(shape = RoundedCornerShape(8.dp))
                             .background(color = Color.White)
-                    ){
+                            .clickable { isFullscreen = true } // 👈 Tap to go fullscreen
+                    ) {
                         photoUri?.let {
                             AsyncImage(
                                 model = it,
@@ -154,15 +158,9 @@ fun PostSnapshotBody(photoUri: Uri?) {
                                     .clip(RoundedCornerShape(8.dp)),
                                 contentScale = ContentScale.Crop
                             )
-                        } ?: Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(278.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.White)
-                        )
-
+                        }
                     }
+
                     OutlinedTextField(
                         value = snapshotCaption,
                         onValueChange = { input ->
@@ -332,7 +330,26 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
                 }
             }
+        if (isFullscreen && photoUri != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.95f))
+                    .clickable { isFullscreen = false }, // 👈 Tap to exit fullscreen
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = photoUri,
+                    contentDescription = "Full Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp), // Optional padding
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
+
+    }
     }
 
 
