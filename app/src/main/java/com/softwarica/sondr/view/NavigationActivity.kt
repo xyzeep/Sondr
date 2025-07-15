@@ -214,7 +214,8 @@ fun NavigationBody() {
                                 modifier = Modifier
                                     .clickable {
                                         showCreateMenu = false
-                                        // TODO: Navigate to Snapshot
+                                        val intent = Intent(context, TakeSnapshotActivity::class.java)
+                                        context.startActivity(intent)
                                     }
                                     .padding(horizontal = 20.dp, vertical = 12.dp)
                             ) {

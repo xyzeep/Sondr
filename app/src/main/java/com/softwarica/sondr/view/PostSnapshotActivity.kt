@@ -1,5 +1,7 @@
 package com.softwarica.sondr.view
 
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -67,6 +70,9 @@ fun PostSnapshotBody(photoUri: Uri?) {
     var nsfw by remember { mutableStateOf(true) }
     var private by remember { mutableStateOf(false) }
     var isFullscreen by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val activity = context as? Activity
 
 
 
@@ -101,7 +107,16 @@ fun PostSnapshotBody(photoUri: Uri?) {
                             text = "Cancel",
                             fontSize = 20.sp,
                             fontFamily = InterFont,
-                            color = Color.Red
+                            color = Color.Red,
+                            modifier = Modifier.clickable {
+                                activity?.let {
+                                    it.finish() // Finish PostSnapshotActivity
+                                    // Start NavigationActivity
+                                    val intent = Intent(context, NavigationActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    context.startActivity(intent)
+                                }
+                            }
                         )
 
                     }
@@ -276,15 +291,12 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
                     Button(
                         onClick = {
-                            // TODO: handle cancel
+                            activity?.finish()
                         },
-
                         modifier = Modifier
                             .width(144.dp)
                             .height(52.dp),
-
                         shape = RoundedCornerShape(8.dp),
-
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Red.copy(alpha = 0.4f)
                         )
