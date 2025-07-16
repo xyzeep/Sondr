@@ -10,12 +10,5 @@ data class UserModel(
     val createdAt: Long = System.currentTimeMillis()
 )
 
-data class PostModel(
-    val postID: String = "",
-    val text: String = "",
-    val authorID: String = "",
-    val likes: Int = 0,
-    val nsfw: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis()
-)
+
 
