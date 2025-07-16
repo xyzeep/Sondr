@@ -36,7 +36,6 @@ fun ProfileScreen() {
         PostModel(
             postID = "snap-0x4f5ts5",
             createdAt = System.currentTimeMillis() - 3 * 60 * 1000, // 3 mins ago
-            text = "are aliens real? 🤔",
             type = PostType.SNAPSHOT,
             mediaRes = null, // or use your drawable resource as string URL if needed
             likes = 42,
@@ -44,12 +43,11 @@ fun ProfileScreen() {
             caption = "",
             authorID = "",
             nsfw = false,
-            private = false
+            isPrivate = false
         ),
         PostModel(
             postID = "snap-0x5g5ts5",
             createdAt = System.currentTimeMillis() - 3 * 60 * 1000, // 3 mins ago
-            text = "when life gives you lemons, throw it in the bin",
             type = PostType.SNAPSHOT,
             mediaRes = null,
             likes = 42,
@@ -57,12 +55,11 @@ fun ProfileScreen() {
             caption = "",
             authorID = "",
             nsfw = false,
-            private = false
+            isPrivate = false
         ),
         PostModel(
             postID = "snap-0x4f5tf7",
             createdAt = System.currentTimeMillis() - 60 * 60 * 1000, // 1 hour ago
-            text = "chickens are birds too",
             type = PostType.SNAPSHOT,
             mediaRes = null,
             likes = 42,
@@ -70,7 +67,7 @@ fun ProfileScreen() {
             caption = "",
             authorID = "",
             nsfw = false,
-            private = false
+            isPrivate = false
         )
     )
 

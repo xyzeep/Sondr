@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -50,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.ui.theme.InterFont
 
 class PostSnapshotActivity : ComponentActivity() {
@@ -68,7 +70,7 @@ class PostSnapshotActivity : ComponentActivity() {
 fun PostSnapshotBody(photoUri: Uri?) {
     var snapshotCaption by remember { mutableStateOf("") }
     var nsfw by remember { mutableStateOf(true) }
-    var private by remember { mutableStateOf(false) }
+    var isPrivate by remember { mutableStateOf(false) }
     var isFullscreen by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -264,9 +266,9 @@ fun PostSnapshotBody(photoUri: Uri?) {
                             fontFamily = InterFont
                         )
                         Switch(
-                            checked = private,
+                            checked = isPrivate,
                             onCheckedChange = {
-                                private = it
+                                isPrivate = it
                             },
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = Color.White,
@@ -314,7 +316,33 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
                     Button(
                         onClick = {
-                            // TODO: handle cancel
+                            // Create PostModel with collected data
+                            val postModel = com.softwarica.sondr.model.PostModel(
+                                authorID = "demoUserId", // TODO: Replace with real user ID
+                                author = "Demo User", // TODO: Replace with real author name
+                                type = com.softwarica.sondr.model.PostType.SNAPSHOT,
+                                caption = snapshotCaption,
+                                likes = 0,
+                                nsfw = nsfw,
+                                isPrivate = isPrivate,
+                                mediaRes = photoUri?.toString()
+                            )
+                            // Create Cloudinary instance
+                            val cloudinary = com.cloudinary.Cloudinary(com.cloudinary.utils.ObjectUtils.asMap(
+                                "cloud_name", "ddp9rhsim",
+                                "api_key", "661111219668513",
+                                "api_secret", "e0dTxIq2lPipTZ7WP7i4mYdVHqM"
+                            ))
+                            // Create repository
+                            val repo = PostRepositoryImpl(context)  // Correct: only context
+                            // Call createPost
+                            repo.createPost(postModel) { success, message ->
+                                if (success) {
+                                    activity?.finish()
+                                } else {
+                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         },
 
                         modifier = Modifier

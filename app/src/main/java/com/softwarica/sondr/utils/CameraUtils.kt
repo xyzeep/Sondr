@@ -77,13 +77,24 @@ fun CameraPreview(
                         val cameraProvider = cameraProviderFuture.get()
 
                         val preview = Preview.Builder()
-                            .setTargetAspectRatio(aspectRatioInt) // 👈 set camera preview aspect ratio
+                            .setTargetResolution(
+                                when (aspectRatio) {
+                                    "3:4" -> android.util.Size(720, 960)
+                                    "9:16" -> android.util.Size(720, 1280)
+                                    else -> android.util.Size(720, 960)
+                                }
+                            )
                             .build()
                         preview.setSurfaceProvider(previewView.surfaceProvider)
 
-                        // 👇 set up the image capture use case with same aspect ratio
                         imageCapture = ImageCapture.Builder()
-                            .setTargetAspectRatio(aspectRatioInt)
+                            .setTargetResolution(
+                                when (aspectRatio) {
+                                    "3:4" -> android.util.Size(720, 960)
+                                    "9:16" -> android.util.Size(720, 1280)
+                                    else -> android.util.Size(720, 960)
+                                }
+                            )
                             .build()
 
                         val cameraSelector = if (isFrontCamera) {
@@ -98,7 +109,7 @@ fun CameraPreview(
                                 lifecycleOwner,
                                 cameraSelector,
                                 preview,
-                                imageCapture!! // pass imageCapture to the binding
+                                imageCapture!!
                             )
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -108,6 +119,7 @@ fun CameraPreview(
 
                     previewView
                 },
+
                 modifier = Modifier.fillMaxSize()
             )
         }

@@ -7,14 +7,13 @@ enum class PostType {
 
 data class PostModel(
     val postID: String = "",
-    val text: String = "",
     val authorID: String = "",
     val author: String = "",
     val type: PostType =  PostType.SNAPSHOT,
     val caption: String = "",
     val likes: Int = 0,
     val nsfw: Boolean = false,
-    val private: Boolean = false,
+    val isPrivate: Boolean = false,
     val mediaRes: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )
