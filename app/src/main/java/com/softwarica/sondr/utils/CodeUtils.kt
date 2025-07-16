@@ -3,6 +3,7 @@ package com.softwarica.sondr.utils
 
 import com.google.firebase.database.FirebaseDatabase
 import kotlin.random.Random
+import java.util.concurrent.TimeUnit
 
 fun generateSondrCode(callback: (String) -> Unit){
     val chars = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -37,3 +38,21 @@ fun checkIfSondrCodeExists(
             callback(false) // say that it doesn't exist
         }
 }
+
+
+fun getTimeAgo(createdAt: Long): String {
+    val now = System.currentTimeMillis()
+    val diff = now - createdAt
+
+    return when {
+        diff < TimeUnit.MINUTES.toMillis(1) -> "Just now"
+        diff < TimeUnit.HOURS.toMillis(1) -> "${TimeUnit.MILLISECONDS.toMinutes(diff)} minutes ago"
+        diff < TimeUnit.DAYS.toMillis(1) -> "${TimeUnit.MILLISECONDS.toHours(diff)} hours ago"
+        diff < TimeUnit.DAYS.toMillis(2) -> "Yesterday"
+        else -> {
+            val days = TimeUnit.MILLISECONDS.toDays(diff)
+            "$days days ago"
+        }
+    }
+}
+

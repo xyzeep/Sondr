@@ -1,6 +1,6 @@
 package com.softwarica.sondr.view.pages
 
-import com.softwarica.sondr.ui.model.Post
+import com.softwarica.sondr.model.PostModel
 import androidx.compose.foundation.background
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.softwarica.sondr.R
 import com.softwarica.sondr.ui.components.PostItem
-import com.softwarica.sondr.ui.model.PostType
+import com.softwarica.sondr.model.PostType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,52 +39,84 @@ fun HomeFeedPage() {
     data class BottomNavItem(val label: String, val iconResId: Int)
 
     val dummyPosts = listOf(
-        Post(
-            postId = "snap-0x4f5ts5",
-            time = "3 mins ago",
-            caption = "are aliens real? 🤔",
+        PostModel(
+            postID = "1",
+            text = "Beautiful sunset at the beach",
+            authorID = "user123",
+            author = "Alice",
             type = PostType.SNAPSHOT,
-            mediaRes = R.drawable.quadeca, // post SNAPSHOT
-            likes = 42,
-            author = "oggyboggy"
+            caption = "Golden hour vibes 🌅",
+            likes = 120,
+            nsfw = false,
+            private = false,
+            mediaRes = "https://picsum.photos/600/400?random=1",
+            createdAt = System.currentTimeMillis() - 5 * 60 * 1000 // 5 minutes ago
         ),
-        Post(
-            postId = "snap-0x5g5ts5",
-            time = "3 min ago",
-            caption = "when life gives you lemons, throw it in the bin",
-            type = PostType.SNAPSHOT,
-            mediaRes = R.drawable.alu, // post SNAPSHOT
-            likes = 42,
-            author = "ChandramaKoDaag"
+        PostModel(
+            postID = "2",
+            text = "Quiet moments in the forest",
+            authorID = "user456",
+            author = "Bob",
+            type = PostType.WHISPR,
+            caption = "Nature's peace 🍃",
+            likes = 85,
+            nsfw = false,
+            private = false,
+            mediaRes = "https://picsum.photos/600/100?random=2",
+            createdAt = System.currentTimeMillis() - 2 * 60 * 60 * 1000 // 2 hours ago
         ),
-        Post(
-            postId = "snap-0x4f5tf7",
-            time = "1 hour ago",
-            caption = "chickens are birds too",
+        PostModel(
+            postID = "3",
+            text = "Delicious homemade pizza",
+            authorID = "chef007",
+            author = "Charlie",
             type = PostType.SNAPSHOT,
-            mediaRes = R.drawable.quadeca, // post SNAPSHOT
-            likes = 42,
-            author = "heroHiraLal"
+            caption = "Dinner is served! 🍕",
+            likes = 230,
+            nsfw = false,
+            private = false,
+            mediaRes = "https://picsum.photos/600/400?random=3",
+            createdAt = System.currentTimeMillis() - 24 * 60 * 60 * 1000 // 1 day ago
         ),
-        Post(
-            postId = "snap-0x4f5ghw",
-            time = "33 mins ago",
-            caption = "why are you here?",
-            type = PostType.SNAPSHOT,
-            mediaRes = R.drawable.quadeca, // post SNAPSHOT
-            likes = 42,
-            author = "smartFella"
+        PostModel(
+            postID = "4",
+            text = "Calm lake at dawn",
+            authorID = "naturelover",
+            author = "Dana",
+            type = PostType.WHISPR,
+            caption = "Peaceful mornings",
+            likes = 95,
+            nsfw = false,
+            private = false,
+            mediaRes = "https://picsum.photos/600/100?random=4",
+            createdAt = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000 // 3 days ago
         ),
-        Post(
-            postId = "snap-0x4ggts5",
-            time = "55 mins ago",
-            caption = "i am just boreddd",
+        PostModel(
+            postID = "5",
+            text = "City lights at night",
+            authorID = "urbanexplorer",
+            author = "Eli",
             type = PostType.SNAPSHOT,
-            mediaRes = R.drawable.quadeca, // post SNAPSHOT
-            likes = 42,
-            author = "fartSmella"
+            caption = "City never sleeps 🌃",
+            likes = 310,
+            nsfw = false,
+            private = false,
+            mediaRes = "https://picsum.photos/600/400?random=5",
+            createdAt = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000 // 7 days ago
+        ),
+        PostModel(
+            postID = "6",
+            text = "Cozy reading nook",
+            authorID = "bookworm",
+            author = "Fiona",
+            type = PostType.WHISPR,
+            caption = "Lost in stories 📚",
+            likes = 180,
+            nsfw = false,
+            private = false,
+            mediaRes = "https://picsum.photos/600/100?random=6",
+            createdAt = System.currentTimeMillis() - 30 * 60 * 1000 // 30 minutes ago
         )
-
     )
 
     val context = LocalContext.current
@@ -107,7 +139,7 @@ fun HomeFeedPage() {
 
 // fun to load feed
 @Composable
-fun Feed(posts: List<Post>, selectedFilter: String, onFilterChange: (String) -> Unit) {
+fun Feed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String) -> Unit) {
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
 
     LazyColumn(

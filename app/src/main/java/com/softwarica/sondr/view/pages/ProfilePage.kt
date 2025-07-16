@@ -21,9 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.R
+import com.softwarica.sondr.model.PostModel
 import com.softwarica.sondr.ui.components.PostItem
-import com.softwarica.sondr.ui.model.Post
-import com.softwarica.sondr.ui.model.PostType
+import com.softwarica.sondr.model.PostType
 
 @Composable
 fun ProfileScreen() {
@@ -32,12 +32,48 @@ fun ProfileScreen() {
     val savedUsername = sharedPreferences.getString("currentUsername", "") ?: ""
 
     var selectedFilter by remember { mutableStateOf("All") }
-
     val dummyPosts = listOf(
-        Post("snap-0x4f5ts5", "3 mins ago", "are aliens real? 🤔", PostType.SNAPSHOT, R.drawable.quadeca, 42, "oggyboggy"),
-        Post("snap-0x5g5ts5", "3 min ago", "when life gives you lemons, throw it in the bin", PostType.SNAPSHOT, R.drawable.alu, 42, "ChandramaKoDaag"),
-        Post("snap-0x4f5tf7", "1 hour ago", "chickens are birds too", PostType.SNAPSHOT, R.drawable.quadeca, 42, "heroHiraLal")
+        PostModel(
+            postID = "snap-0x4f5ts5",
+            createdAt = System.currentTimeMillis() - 3 * 60 * 1000, // 3 mins ago
+            text = "are aliens real? 🤔",
+            type = PostType.SNAPSHOT,
+            mediaRes = null, // or use your drawable resource as string URL if needed
+            likes = 42,
+            author = "oggyboggy",
+            caption = "",
+            authorID = "",
+            nsfw = false,
+            private = false
+        ),
+        PostModel(
+            postID = "snap-0x5g5ts5",
+            createdAt = System.currentTimeMillis() - 3 * 60 * 1000, // 3 mins ago
+            text = "when life gives you lemons, throw it in the bin",
+            type = PostType.SNAPSHOT,
+            mediaRes = null,
+            likes = 42,
+            author = "ChandramaKoDaag",
+            caption = "",
+            authorID = "",
+            nsfw = false,
+            private = false
+        ),
+        PostModel(
+            postID = "snap-0x4f5tf7",
+            createdAt = System.currentTimeMillis() - 60 * 60 * 1000, // 1 hour ago
+            text = "chickens are birds too",
+            type = PostType.SNAPSHOT,
+            mediaRes = null,
+            likes = 42,
+            author = "heroHiraLal",
+            caption = "",
+            authorID = "",
+            nsfw = false,
+            private = false
+        )
     )
+
 
     LazyColumn(
         modifier = Modifier
@@ -118,7 +154,7 @@ fun ProfileScreen() {
 }
 
 @Composable
-fun ProfileFeed(posts: List<Post>, selectedFilter: String, onFilterChange: (String) -> Unit) {
+fun ProfileFeed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String) -> Unit) {
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
 
     Column {

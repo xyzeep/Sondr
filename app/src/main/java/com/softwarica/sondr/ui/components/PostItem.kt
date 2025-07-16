@@ -9,24 +9,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import coil.compose.rememberAsyncImagePainter
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 import com.softwarica.sondr.R
-import com.softwarica.sondr.ui.model.Post
-import com.softwarica.sondr.ui.model.PostType
+import com.softwarica.sondr.model.PostModel
+import com.softwarica.sondr.model.PostType
+import com.softwarica.sondr.utils.getTimeAgo
 
 
 @Composable
-fun PostItem(post: Post) {
+fun PostItem(post: PostModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,7 +37,7 @@ fun PostItem(post: Post) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "by ${post.author}", color = Color.White.copy(alpha = 0.8f), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(text = "by ${post.authorID}", color = Color.White.copy(alpha = 0.8f), fontSize = 16.sp, fontWeight = FontWeight.Bold)
 
             Icon(
                 painter = painterResource(R.drawable.baseline_more_horiz_24),
@@ -53,7 +52,7 @@ fun PostItem(post: Post) {
         when (post.type) {
             PostType.SNAPSHOT -> {
                 Image(
-                    painter = painterResource(id = post.mediaRes),
+                    painter = rememberAsyncImagePainter(model = post.mediaRes),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -64,7 +63,7 @@ fun PostItem(post: Post) {
             }
             PostType.WHISPR -> {
                 Image(
-                    painter = painterResource(id = post.mediaRes),
+                    painter = rememberAsyncImagePainter(model = post.mediaRes),
                     contentDescription = "WHISPR",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -99,7 +98,7 @@ fun PostItem(post: Post) {
                 )
                 Text(text = "${post.likes} likes", color = Color.White, fontSize = 14.sp)
             }
-            Text(text = post.time, color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(text = getTimeAgo(post.createdAt), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
 
         }
         HorizontalDivider(
