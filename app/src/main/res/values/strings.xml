@@ -6,4 +6,6 @@
     <string name="title_activity_new_snapshot">NewSnapshotActivity</string>
     <string name="title_activity_post_snapshot">PostSnapshotActivity</string>
     <string name="title_activity_navigation">NavigationActivity</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_media_upload">MediaUpload</string>
 </resources>
