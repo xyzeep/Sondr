@@ -81,7 +81,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
     val activity = context as? Activity
 
     val postRepo = PostRepositoryImpl(context)
-    val userRepo = UserRepositoryImpl()
+    val userRepo = UserRepositoryImpl(context)
 
 
     Scaffold { innerPadding ->

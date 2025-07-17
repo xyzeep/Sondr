@@ -61,6 +61,7 @@ import com.softwarica.sondr.R
 import com.softwarica.sondr.model.UserModel
 import com.softwarica.sondr.repository.UserRepository
 import com.softwarica.sondr.repository.UserRepositoryImpl
+import com.softwarica.sondr.utils.saveLoggedInUsername
 
 
 // main class
@@ -92,6 +93,9 @@ fun LoginBody() {
     // user input for sonder code
     var sondrCode by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
+    val activity = context as? Activity
     var loading by remember { mutableStateOf(false) }
 
 
@@ -113,11 +117,8 @@ fun LoginBody() {
         mutableStateOf(false)
     }
 
-    val userRepository = remember { UserRepositoryImpl() }
+    val userRepository = remember { UserRepositoryImpl(context) }
 
-    val context = LocalContext.current
-    val sharedPreferences = context.getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
-    val activity = context as? Activity
 
 
     Scaffold(
@@ -316,6 +317,9 @@ fun LoginBody() {
                                                 putBoolean("isLoggedIn", true) // store login state
                                                 apply()
                                             }
+
+                                            saveLoggedInUsername(context, loginUsername)
+
                                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                                             val intent = Intent(context, NavigationActivity::class.java)
                                             // optionally pass user data with intent

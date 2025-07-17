@@ -1,16 +1,15 @@
 package com.softwarica.sondr.repository
 
-
+import android.content.Context
 import com.softwarica.sondr.model.UserModel
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.softwarica.sondr.utils.generateSondrCode
-import com.google.firebase.database.DatabaseReference
+import com.softwarica.sondr.utils.getLoggedInUsername
 
+class UserRepositoryImpl(private val context: Context) : UserRepository {
 
-class UserRepositoryImpl : UserRepository {
-
-    private val database: FirebaseDatabase  = FirebaseDatabase.getInstance()
+    private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     val usersRef: DatabaseReference = database.reference.child("users")
 
     val defaultBios = listOf(
@@ -57,29 +56,25 @@ class UserRepositoryImpl : UserRepository {
             }
     }
 
-
     override fun register(
         username: String,
         callback: (Boolean, String, String) -> Unit
     ) {
         println("Register called with username: $username")
 
-        // Check if username exists first
         usersRef.orderByChild("username").equalTo(username).get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
                     callback(false, "Username already exists", "")
                 } else {
-                    // Generate unique Sondr code
                     generateSondrCode { code ->
                         val userModel = UserModel(
-                            userID = username, // Use username as ID
+                            userID = username,
                             username = username,
                             bio = defaultBios.random(),
                             sondrCode = code
                         )
 
-                        // Save user with username as key
                         usersRef.child(username).setValue(userModel)
                             .addOnSuccessListener {
                                 callback(true, "User registered successfully", code)
@@ -95,55 +90,15 @@ class UserRepositoryImpl : UserRepository {
             }
     }
 
-
-
-    override fun addUserToDatabase(
-        userID: String,
-        model: UserModel,
-        callback: (Boolean, String) -> Unit
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteAccount(
-        userID: String,
-        callback: (Boolean, String) -> Unit
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun editProfile(
-        userID: String,
-        data: MutableMap<String, Any>,
-        callback: (Boolean, String) -> Unit
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getCurrentUser(): FirebaseUser? {
-        TODO("Not yet implemented")
-    }
-
-    override fun getUserById(
-        userID: String,
-        callback: (Boolean, String, UserModel?) -> Unit
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun logout(callback: (Boolean, String) -> Unit) {
-        TODO("Not yet implemented")
-    }
-
     override fun getCurrentUserInfo(callback: (Boolean, String, UserModel?) -> Unit) {
-        val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-        if (firebaseUser == null) {
+        val currentUsername = getLoggedInUsername(context)
+
+        if (currentUsername == null) {
             callback(false, "No user is currently logged in", null)
             return
         }
 
-        val userID = firebaseUser.uid
-        usersRef.child(userID).get()
+        usersRef.child(currentUsername).get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
                     val userModel = snapshot.getValue(UserModel::class.java)
@@ -157,5 +112,26 @@ class UserRepositoryImpl : UserRepository {
             }
     }
 
-}
+    // These are still unimplemented
+    override fun addUserToDatabase(userID: String, model: UserModel, callback: (Boolean, String) -> Unit) {
+        TODO("Not yet implemented")
+    }
 
+    override fun deleteAccount(userID: String, callback: (Boolean, String) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun editProfile(userID: String, data: MutableMap<String, Any>, callback: (Boolean, String) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getCurrentUser() = null // Not using FirebaseAuth
+
+    override fun getUserById(userID: String, callback: (Boolean, String, UserModel?) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun logout(callback: (Boolean, String) -> Unit) {
+        TODO("Not yet implemented")
+    }
+}
