@@ -51,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.softwarica.sondr.components.Loading
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.theme.InterFont
@@ -73,7 +74,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
     var nsfw by remember { mutableStateOf(true) }
     var isPrivate by remember { mutableStateOf(false) }
     var isFullscreen by remember { mutableStateOf(false) }
-
+    var loading by remember { mutableStateOf(false) }
 
 
     val context = LocalContext.current
@@ -321,6 +322,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
                     Button(
                         onClick = {
+                            loading = true
                             userRepo.getCurrentUserInfo { success, msg, user ->
                                 if (success && user != null) {
                                     val postModel = com.softwarica.sondr.model.PostModel(
@@ -336,7 +338,12 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
                                     postRepo.createPost(postModel) { postSuccess, postMessage ->
                                         if (postSuccess) {
-                                            activity?.finish()
+                                            val intent = Intent(context, NavigationActivity::class.java)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            context.startActivity(intent)
+                                            (context as? Activity)?.finish()
+                                            loading = false
+                                            Toast.makeText(context, "Snapshot Posted!", Toast.LENGTH_SHORT).show()
                                         } else {
                                             Toast.makeText(context, postMessage, Toast.LENGTH_SHORT).show()
                                         }
@@ -392,6 +399,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
         }
 
     }
+    Loading(isLoading = loading, message = "Posting your snapshot...")
     }
 
 

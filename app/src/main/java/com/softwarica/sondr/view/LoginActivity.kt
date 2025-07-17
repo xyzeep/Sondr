@@ -298,8 +298,10 @@ fun LoginBody() {
                                         Toast.makeText(context, "Sondr Code cannot be empty", Toast.LENGTH_SHORT).show()
                                         return@Button
                                     }
+                                    loading = true  // show loading spinner
 
                                     userRepository.login(loginUsername, sondrCode) { success, message ->
+                                        loading = false  // hide loading spinner
                                         if (success) {
                                             sharedPreferences.edit().apply {
                                                 putString("currentUsername", loginUsername)   // store the username
@@ -485,10 +487,9 @@ fun LoginBody() {
 
                     }
                 }
+   }
 
-            }
-        Loading(isLoading = loading) //loading indicator
-
+        Loading(isLoading = loading, message = "Loggin in") //loading indicator
     }
 }
 
