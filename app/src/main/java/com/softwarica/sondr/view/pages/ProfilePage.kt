@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -74,15 +75,16 @@ fun ProfileScreen() {
 
     LazyColumn(
         modifier = Modifier
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xff005CC7), Color(0xFF121212))
-                )
-            )
+//            .background(
+//                brush = Brush.verticalGradient(
+//                    colors = listOf(Color(0xff005CC7), Color(0xFF121212))
+//                )
+//            )
+            .background(colorResource(id = R.color.background))
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item { Spacer(Modifier.height(80.dp)) }
+        item { Spacer(Modifier.height(50.dp)) }
 
         item {
             Image(
@@ -96,7 +98,7 @@ fun ProfileScreen() {
         }
 
         item {
-            Spacer(Modifier.height(30.dp))
+            Spacer(Modifier.height(10.dp))
             Text(
                 text = "@$savedUsername",
                 color = Color.White,

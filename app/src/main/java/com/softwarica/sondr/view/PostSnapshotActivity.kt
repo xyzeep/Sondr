@@ -327,7 +327,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
                                 if (success && user != null) {
                                     val postModel = com.softwarica.sondr.model.PostModel(
                                         authorID = user.userID,
-                                        author = user.name,
+                                        author = user.username,
                                         type = com.softwarica.sondr.model.PostType.SNAPSHOT,
                                         caption = snapshotCaption,
                                         likes = 0,

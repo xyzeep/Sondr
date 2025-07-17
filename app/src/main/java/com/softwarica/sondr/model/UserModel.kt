@@ -3,7 +3,7 @@ package com.softwarica.sondr.model
 data class UserModel(
     val userID: String = "",
     val username: String = "",
-    val name: String = "",
+    val bio: String = "",
     val sondrCode: String = "",
     val followers: Int = 0,
     val posts: Int = 0,

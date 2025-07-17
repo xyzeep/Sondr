@@ -1,9 +1,11 @@
 package com.softwarica.sondr.view
 
 import android.app.Activity
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.softwarica.sondr.components.Loading
 import androidx.activity.ComponentActivity
@@ -56,6 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.R
+import com.softwarica.sondr.model.UserModel
 import com.softwarica.sondr.repository.UserRepository
 import com.softwarica.sondr.repository.UserRepositoryImpl
 
@@ -66,6 +69,9 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val sharedPreferences = getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
+
+
+
         if (isLoggedIn) {
             // User is already logged in, go to NavigationActivity
             val intent = Intent(this, NavigationActivity::class.java)
@@ -90,6 +96,8 @@ fun LoginBody() {
 
 
     // user input for username while register
+
+
     var registerUsername by remember { mutableStateOf("") }
 
     // user input for username while login
