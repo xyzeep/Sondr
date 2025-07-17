@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import com.softwarica.sondr.components.Loading
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -84,6 +85,9 @@ fun LoginBody() {
 
     // user input for sonder code
     var sondrCode by remember { mutableStateOf("") }
+
+    var loading by remember { mutableStateOf(false) }
+
 
     // user input for username while register
     var registerUsername by remember { mutableStateOf("") }
@@ -483,6 +487,7 @@ fun LoginBody() {
                 }
 
             }
+        Loading(isLoading = loading) //loading indicator
 
     }
 }

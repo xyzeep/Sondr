@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.softwarica.sondr.repository.PostRepositoryImpl
+import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.theme.InterFont
 
 class PostSnapshotActivity : ComponentActivity() {
@@ -73,9 +74,13 @@ fun PostSnapshotBody(photoUri: Uri?) {
     var isPrivate by remember { mutableStateOf(false) }
     var isFullscreen by remember { mutableStateOf(false) }
 
+
+
     val context = LocalContext.current
     val activity = context as? Activity
 
+    val postRepo = PostRepositoryImpl(context)
+    val userRepo = UserRepositoryImpl()
 
 
     Scaffold { innerPadding ->
@@ -316,31 +321,28 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
                     Button(
                         onClick = {
-                            // Create PostModel with collected data
-                            val postModel = com.softwarica.sondr.model.PostModel(
-                                authorID = "demoUserId", // TODO: Replace with real user ID
-                                author = "Demo User", // TODO: Replace with real author name
-                                type = com.softwarica.sondr.model.PostType.SNAPSHOT,
-                                caption = snapshotCaption,
-                                likes = 0,
-                                nsfw = nsfw,
-                                isPrivate = isPrivate,
-                                mediaRes = photoUri?.toString()
-                            )
-                            // Create Cloudinary instance
-                            val cloudinary = com.cloudinary.Cloudinary(com.cloudinary.utils.ObjectUtils.asMap(
-                                "cloud_name", "ddp9rhsim",
-                                "api_key", "661111219668513",
-                                "api_secret", "e0dTxIq2lPipTZ7WP7i4mYdVHqM"
-                            ))
-                            // Create repository
-                            val repo = PostRepositoryImpl(context)  // Correct: only context
-                            // Call createPost
-                            repo.createPost(postModel) { success, message ->
-                                if (success) {
-                                    activity?.finish()
+                            userRepo.getCurrentUserInfo { success, msg, user ->
+                                if (success && user != null) {
+                                    val postModel = com.softwarica.sondr.model.PostModel(
+                                        authorID = user.userID,
+                                        author = user.name,
+                                        type = com.softwarica.sondr.model.PostType.SNAPSHOT,
+                                        caption = snapshotCaption,
+                                        likes = 0,
+                                        nsfw = nsfw,
+                                        isPrivate = isPrivate,
+                                        mediaRes = photoUri?.toString()
+                                    )
+
+                                    postRepo.createPost(postModel) { postSuccess, postMessage ->
+                                        if (postSuccess) {
+                                            activity?.finish()
+                                        } else {
+                                            Toast.makeText(context, postMessage, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
                                 } else {
-                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },

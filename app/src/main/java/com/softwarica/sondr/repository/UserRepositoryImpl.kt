@@ -29,13 +29,21 @@ class UserRepositoryImpl : UserRepository {
                             val user = userSnap.getValue(UserModel::class.java)
                             if (user != null) {
                                 if (user.sondrCode == sondrCode) {
-                                    callback(true, "Login successful")
+                                    // ✅ Sign in anonymously to activate FirebaseAuth
+                                    com.google.firebase.auth.FirebaseAuth.getInstance().signInAnonymously()
+                                        .addOnSuccessListener {
+                                            callback(true, "Login successful")
+                                        }
+                                        .addOnFailureListener {
+                                            callback(false, "Login succeeded, but FirebaseAuth sign-in failed")
+                                        }
                                     return@addOnCompleteListener
                                 } else {
                                     callback(false, "Incorrect Sondr Code")
                                     return@addOnCompleteListener
                                 }
                             }
+
                         }
                         callback(false, "User data corrupted")
                     } else {
@@ -48,50 +56,56 @@ class UserRepositoryImpl : UserRepository {
     }
 
     override fun register(
-
         username: String,
         callback: (Boolean, String, String) -> Unit
     ) {
         println("Register called with username: $username")
-        // check if the username already exists
+
+        // Check if username exists first
         usersRef.orderByChild("username").equalTo(username).get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
-                    // username already taken
                     callback(false, "Username already exists", "")
                 } else {
-                    // else generate a unique Sondr code
-                    generateSondrCode { code ->
-                        // generate a unique user ID
-                        val userID = usersRef.push().key ?: run {
-                            callback(false, "Failed to generate user ID", "")
-                            return@generateSondrCode
+                    // Sign in anonymously to get FirebaseAuth UID
+                    com.google.firebase.auth.FirebaseAuth.getInstance().signInAnonymously()
+                        .addOnSuccessListener { authResult ->
+                            val firebaseUID = authResult.user?.uid ?: run {
+                                callback(false, "Failed to get Firebase UID", "")
+                                return@addOnSuccessListener
+                            }
+
+                            // Generate unique sondr code
+                            generateSondrCode { code ->
+
+                                // Create user model with FirebaseAuth UID as userID
+                                val userModel = UserModel(
+                                    userID = firebaseUID,
+                                    username = username,
+                                    name = username,
+                                    sondrCode = code
+                                )
+
+                                // Save user in DB using FirebaseAuth UID as key
+                                usersRef.child(firebaseUID).setValue(userModel)
+                                    .addOnSuccessListener {
+                                        callback(true, "User registered successfully", code)
+                                    }
+                                    .addOnFailureListener { error ->
+                                        callback(false, error.message ?: "Unknown error", "")
+                                    }
+                            }
                         }
-
-                        // create a new user model
-                        val userModel = UserModel(
-                            userID = userID,
-                            username = username,
-                            name = username, // default name is the username
-                            sondrCode = code
-                        )
-
-                        // save user to database
-                        usersRef.child(userID).setValue(userModel)
-                            .addOnSuccessListener {
-                                callback(true, "User registered successfully", code)
-                            }
-                            .addOnFailureListener { error ->
-                                callback(false, error.message ?: "Unknown error", "")
-                            }
-                    }
+                        .addOnFailureListener {
+                            callback(false, "FirebaseAuth anonymous sign-in failed", "")
+                        }
                 }
             }
             .addOnFailureListener { error ->
-                // if checking username fails
                 callback(false, error.message ?: "Error checking username", "")
             }
     }
+
 
     override fun addUserToDatabase(
         userID: String,
@@ -130,5 +144,28 @@ class UserRepositoryImpl : UserRepository {
     override fun logout(callback: (Boolean, String) -> Unit) {
         TODO("Not yet implemented")
     }
+
+    override fun getCurrentUserInfo(callback: (Boolean, String, UserModel?) -> Unit) {
+        val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        if (firebaseUser == null) {
+            callback(false, "No user is currently logged in", null)
+            return
+        }
+
+        val userID = firebaseUser.uid
+        usersRef.child(userID).get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    val userModel = snapshot.getValue(UserModel::class.java)
+                    callback(true, "User data fetched", userModel)
+                } else {
+                    callback(false, "User not found in database", null)
+                }
+            }
+            .addOnFailureListener { error ->
+                callback(false, error.message ?: "Failed to fetch user", null)
+            }
+    }
+
 }
 

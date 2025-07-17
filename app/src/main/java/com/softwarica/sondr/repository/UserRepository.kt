@@ -41,4 +41,7 @@ interface UserRepository {
 
     fun logout(callback: (Boolean, String) -> Unit)
 
+    fun getCurrentUserInfo(callback: (Boolean, String, UserModel?) -> Unit)
+
+
 }
