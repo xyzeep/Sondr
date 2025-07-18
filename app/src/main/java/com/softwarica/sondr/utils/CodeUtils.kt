@@ -13,6 +13,9 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import java.util.*
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
+import androidx.core.graphics.toColorInt
 
 fun generateSondrCode(callback: (String) -> Unit){
     val chars = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -76,15 +79,18 @@ fun formatTimestampToDate(timestamp: Long, pattern: String = "MMM dd, yyyy"): St
 fun generateQrBitmap(data: String, size: Int = 512): ImageBitmap {
     val hints = mapOf(
         EncodeHintType.CHARACTER_SET to "UTF-8",
-        EncodeHintType.MARGIN to 1 // Reduce white border
+        EncodeHintType.MARGIN to 1
     )
 
     val bitMatrix = QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, size, size, hints)
-    val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val bmp = createBitmap(size, size)
+
+    val qrColor = android.graphics.Color.WHITE
+    val bgColor = "#FF121212".toColorInt()
 
     for (x in 0 until size) {
         for (y in 0 until size) {
-            bmp.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+            bmp[x, y] = if (bitMatrix[x, y]) qrColor else bgColor
         }
     }
 
