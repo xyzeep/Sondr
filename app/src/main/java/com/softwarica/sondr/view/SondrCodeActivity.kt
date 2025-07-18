@@ -93,7 +93,6 @@ class SondrCodeActivity : ComponentActivity() {
     }
 }
 
-
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun SondrCodeActivityBody(
@@ -223,7 +222,6 @@ fun SondrCodeActivityBody(
                     }
                 }
             }
-
 
             item { Spacer(Modifier.height(12.dp)) }
 

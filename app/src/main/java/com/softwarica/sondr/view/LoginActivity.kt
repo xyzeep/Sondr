@@ -97,6 +97,8 @@ fun LoginBody() {
     val activity = context as? Activity
     val sharedPreferences = context.getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
     var loading by remember { mutableStateOf(false) }
+    var loadingMessage by remember { mutableStateOf("Loading...") }
+
 
 
     // user input for username while register
@@ -307,6 +309,7 @@ fun LoginBody() {
                                         Toast.makeText(context, "Sondr Code cannot be empty", Toast.LENGTH_SHORT).show()
                                         return@Button
                                     }
+                                    loadingMessage = "Logging in..."
                                     loading = true  // show loading spinner
 
                                     userRepository.login(loginUsername, sondrCode) { success, message ->
@@ -436,10 +439,19 @@ fun LoginBody() {
                                     Toast.makeText(context, "Username cannot be empty", Toast.LENGTH_SHORT).show()
                                     return@Button
                                 }
+                                loadingMessage = "Registering..."
+                                loading = true // show loading
+
+
                                 userRepository.register(registerUsername) { success, message, code ->
                                     if (success) {
                                         Toast.makeText(context, "Registered Successfully!", Toast.LENGTH_LONG).show()
+                                        loading = false
                                         registerUsername = ""
+                                        val intent = Intent(context, SondrCodeActivity::class.java)
+                                        intent.putExtra("sondr_code", code) // Pass the code here
+                                        context.startActivity(intent)
+                                        activity?.finish() // optional: closes LoginActivity
                                     } else {
                                         Toast.makeText(context, "Error: $message", Toast.LENGTH_LONG).show()
                                     }
@@ -501,7 +513,8 @@ fun LoginBody() {
                 }
    }
 
-        Loading(isLoading = loading, message = "Loggin in") //loading indicator
+        Loading(isLoading = loading, message = loadingMessage)
+
     }
 }
 
