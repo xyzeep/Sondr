@@ -1,6 +1,7 @@
 package com.softwarica.sondr.view.pages
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.Image
@@ -25,6 +26,8 @@ import com.softwarica.sondr.R
 import com.softwarica.sondr.model.PostModel
 import com.softwarica.sondr.ui.components.PostItem
 import com.softwarica.sondr.model.PostType
+import com.softwarica.sondr.repository.PostRepository
+import com.softwarica.sondr.repository.PostRepositoryImpl
 
 @Composable
 fun ProfileScreen() {
@@ -33,44 +36,21 @@ fun ProfileScreen() {
     val savedUsername = sharedPreferences.getString("currentUsername", "") ?: ""
 
     var selectedFilter by remember { mutableStateOf("All") }
-    val dummyPosts = listOf(
-        PostModel(
-            postID = "snap-0x4f5ts5",
-            createdAt = System.currentTimeMillis() - 3 * 60 * 1000, // 3 mins ago
-            type = PostType.SNAPSHOT,
-            mediaRes = null, // or use your drawable resource as string URL if needed
-            likes = 42,
-            author = "oggyboggy",
-            caption = "",
-            authorID = "",
-            nsfw = false,
-            isPrivate = false
-        ),
-        PostModel(
-            postID = "snap-0x5g5ts5",
-            createdAt = System.currentTimeMillis() - 3 * 60 * 1000, // 3 mins ago
-            type = PostType.SNAPSHOT,
-            mediaRes = null,
-            likes = 42,
-            author = "ChandramaKoDaag",
-            caption = "",
-            authorID = "",
-            nsfw = false,
-            isPrivate = false
-        ),
-        PostModel(
-            postID = "snap-0x4f5tf7",
-            createdAt = System.currentTimeMillis() - 60 * 60 * 1000, // 1 hour ago
-            type = PostType.SNAPSHOT,
-            mediaRes = null,
-            likes = 42,
-            author = "heroHiraLal",
-            caption = "",
-            authorID = "",
-            nsfw = false,
-            isPrivate = false
-        )
-    )
+
+    var posts by remember { mutableStateOf<List<PostModel>>(emptyList()) }
+    val postRepository: PostRepository = remember { PostRepositoryImpl(context) }
+
+    LaunchedEffect(Unit) {
+        postRepository.getAllPosts { success, message, result ->
+            if (success) {
+                // Filter posts by current user (match author or authorID)
+                posts = result.filter { it.author == savedUsername || it.authorID == savedUsername }.reversed()
+            } else {
+                Log.e("Firebase", "Error fetching posts: $message")
+            }
+        }
+    }
+
 
 
     LazyColumn(
@@ -143,10 +123,11 @@ fun ProfileScreen() {
                     .padding(vertical = 8.dp)
             ) {
                 ProfileFeed(
-                    posts = dummyPosts,
+                    posts = posts,
                     selectedFilter = selectedFilter,
                     onFilterChange = { selectedFilter = it }
                 )
+
             }
         }
     }
