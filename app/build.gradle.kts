@@ -64,6 +64,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation("com.cloudinary:cloudinary-android:2.3.1")
     implementation ("androidx.activity:activity-ktx:1.7.2") // or latest
+    implementation ("com.google.zxing:core:3.5.3")
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

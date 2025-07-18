@@ -6,6 +6,13 @@ import kotlin.random.Random
 import java.util.concurrent.TimeUnit
 import java.text.SimpleDateFormat
 import java.util.*
+import android.graphics.Bitmap
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.qrcode.QRCodeWriter
+import java.util.*
 
 fun generateSondrCode(callback: (String) -> Unit){
     val chars = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -63,4 +70,23 @@ fun formatTimestampToDate(timestamp: Long, pattern: String = "MMM dd, yyyy"): St
     val sdf = SimpleDateFormat(pattern, Locale.getDefault())
     val date = Date(timestamp)
     return sdf.format(date)
+}
+
+
+fun generateQrBitmap(data: String, size: Int = 512): ImageBitmap {
+    val hints = mapOf(
+        EncodeHintType.CHARACTER_SET to "UTF-8",
+        EncodeHintType.MARGIN to 1 // Reduce white border
+    )
+
+    val bitMatrix = QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, size, size, hints)
+    val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+
+    for (x in 0 until size) {
+        for (y in 0 until size) {
+            bmp.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+        }
+    }
+
+    return bmp.asImageBitmap()
 }
