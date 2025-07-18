@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.items
+import android.util.Log
+import com.softwarica.sondr.repository.PostRepository
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,91 +33,26 @@ import androidx.compose.ui.unit.dp
 import com.softwarica.sondr.R
 import com.softwarica.sondr.ui.components.PostItem
 import com.softwarica.sondr.model.PostType
+import com.softwarica.sondr.repository.PostRepositoryImpl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeFeedPage() {
-
     var selectedFilter by remember { mutableStateOf("All") }
-
-    data class BottomNavItem(val label: String, val iconResId: Int)
-
-    val dummyPosts = listOf(
-        PostModel(
-            postID = "1",
-            authorID = "user123",
-            author = "Alice",
-            type = PostType.SNAPSHOT,
-            caption = "Golden hour vibes 🌅",
-            likes = 120,
-            nsfw = false,
-            isPrivate = false,
-            mediaRes = "https://picsum.photos/600/400?random=1",
-            createdAt = System.currentTimeMillis() - 5 * 60 * 1000 // 5 minutes ago
-        ),
-        PostModel(
-            postID = "2",
-            authorID = "user456",
-            author = "Bob",
-            type = PostType.WHISPR,
-            caption = "Nature's peace 🍃",
-            likes = 85,
-            nsfw = false,
-            isPrivate = false,
-            mediaRes = "https://picsum.photos/600/100?random=2",
-            createdAt = System.currentTimeMillis() - 2 * 60 * 60 * 1000 // 2 hours ago
-        ),
-        PostModel(
-            postID = "3",
-            authorID = "chef007",
-            author = "Charlie",
-            type = PostType.SNAPSHOT,
-            caption = "Dinner is served! 🍕",
-            likes = 230,
-            nsfw = false,
-            isPrivate = false,
-            mediaRes = "https://picsum.photos/600/400?random=3",
-            createdAt = System.currentTimeMillis() - 24 * 60 * 60 * 1000 // 1 day ago
-        ),
-        PostModel(
-            postID = "4",
-            authorID = "naturelover",
-            author = "Dana",
-            type = PostType.WHISPR,
-            caption = "Peaceful mornings",
-            likes = 95,
-            nsfw = false,
-            isPrivate = false,
-            mediaRes = "https://picsum.photos/600/100?random=4",
-            createdAt = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000 // 3 days ago
-        ),
-        PostModel(
-            postID = "5",
-            authorID = "urbanexplorer",
-            author = "Eli",
-            type = PostType.SNAPSHOT,
-            caption = "City never sleeps 🌃",
-            likes = 310,
-            nsfw = false,
-            isPrivate = false,
-            mediaRes = "https://picsum.photos/600/400?random=5",
-            createdAt = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000 // 7 days ago
-        ),
-        PostModel(
-            postID = "6",
-            authorID = "bookworm",
-            author = "Fiona",
-            type = PostType.WHISPR,
-            caption = "Lost in stories 📚",
-            likes = 180,
-            nsfw = false,
-            isPrivate = false,
-            mediaRes = "https://picsum.photos/600/100?random=6",
-            createdAt = System.currentTimeMillis() - 30 * 60 * 1000 // 30 minutes ago
-        )
-    )
+    var posts by remember { mutableStateOf<List<PostModel>>(emptyList()) }
 
     val context = LocalContext.current
+    val postRepository: PostRepository = remember { PostRepositoryImpl(context) }
+
+    LaunchedEffect(Unit) {
+        postRepository.getAllPosts { success, message, result ->
+            if (success) {
+                posts = result.reversed() // newest first
+            } else {
+                Log.e("Firebase", "Error fetching posts: $message")
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -121,13 +60,11 @@ fun HomeFeedPage() {
             .background(color = Color(0xff121212)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Feed(
-            posts = dummyPosts,
+            posts = posts,
             selectedFilter = selectedFilter,
             onFilterChange = { selectedFilter = it }
         )
-
     }
 }
 
@@ -135,6 +72,12 @@ fun HomeFeedPage() {
 @Composable
 fun Feed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String) -> Unit) {
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
+
+    val filteredPosts = when (selectedFilter) {
+        "Whisprs" -> posts.filter { it.type == PostType.WHISPR }
+        "Snapshots" -> posts.filter { it.type == PostType.SNAPSHOT }
+        else -> posts
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -173,8 +116,11 @@ fun Feed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String
             }
 
         }
-        items(posts.size) { index ->
-            val post = posts[index]
+//        items(filteredPosts) { post ->
+//            PostItem(post = post)
+//        }
+
+        items(filteredPosts, key = { it.postID }) { post ->
             PostItem(post = post)
         }
     }
