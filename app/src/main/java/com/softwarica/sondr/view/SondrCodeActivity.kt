@@ -5,8 +5,10 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.compose.runtime.*
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,9 +32,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.graphicsLayer
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +62,7 @@ import com.softwarica.sondr.utils.generateQrBitmap
 import com.softwarica.sondr.view.ui.theme.SondrTheme
 
 class SondrCodeActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -83,6 +92,7 @@ class SondrCodeActivity : ComponentActivity() {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun SondrCodeActivityBody(
     sondrCode: String,
@@ -136,16 +146,29 @@ fun SondrCodeActivityBody(
         item { Spacer(Modifier.height(16.dp)) }
 
         item {
+            var isVisible by remember { mutableStateOf(false) }
+
+            val blurEffect = if (!isVisible) {
+                RenderEffect.createBlurEffect(28f, 28f, Shader.TileMode.CLAMP).asComposeRenderEffect()
+            } else {
+                null
+            }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Icon(
-                   painter = painterResource(R.drawable.baseline_visibility_off_24),
-                    contentDescription = "Hidden",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
+                IconButton(onClick = { isVisible = !isVisible }) {
+                    Icon(
+                        painter = painterResource(
+                            if (isVisible) R.drawable.baseline_visibility_24
+                            else R.drawable.baseline_visibility_off_24
+                        ),
+                        contentDescription = if (isVisible) "Visible" else "Hidden",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -153,9 +176,13 @@ fun SondrCodeActivityBody(
                     text = sondrCode,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
-                    fontFamily = InterFont,
+                    fontFamily = LoraFont,
                     color = Color.White,
-                    letterSpacing = 1.5.sp
+                    letterSpacing = 1.5.sp,
+                    modifier = Modifier
+                        .graphicsLayer {
+                            renderEffect = blurEffect
+                        }
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -165,11 +192,12 @@ fun SondrCodeActivityBody(
                         painter = painterResource(R.drawable.baseline_content_copy_24),
                         contentDescription = "Copy",
                         tint = Color.White,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(32.dp)
                     )
                 }
             }
         }
+
 
         item { Spacer(Modifier.height(12.dp)) }
 
@@ -181,7 +209,7 @@ fun SondrCodeActivityBody(
                     }
                     append(" your code or")
                 },
-                color = Color.LightGray,
+                color = Color.White,
                 fontSize = 18.sp,
                 fontFamily = LoraFont
             )
@@ -210,7 +238,7 @@ fun SondrCodeActivityBody(
                         append("Screenshot")
                     }
                 },
-                color = Color.LightGray,
+                color = Color.White,
                 fontSize = 18.sp,
                 fontFamily = LoraFont
             )
@@ -309,11 +337,12 @@ fun SondrCodeActivityBody(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Preview(showBackground = true)
 @Composable
 fun SondrCodeActivityPreview() {
     SondrCodeActivityBody(
-        sondrCode = "ABC123XYZ",
+        sondrCode = "FG7G5FN6",
         qrBitmap = ImageBitmap(200, 200), // Dummy bitmap
         onCopyClicked = {},
         onUnderstandClicked = {}
