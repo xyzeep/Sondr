@@ -4,6 +4,8 @@ package com.softwarica.sondr.utils
 import com.google.firebase.database.FirebaseDatabase
 import kotlin.random.Random
 import java.util.concurrent.TimeUnit
+import java.text.SimpleDateFormat
+import java.util.*
 
 fun generateSondrCode(callback: (String) -> Unit){
     val chars = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -56,3 +58,9 @@ fun getTimeAgo(createdAt: Long): String {
     }
 }
 
+
+fun formatTimestampToDate(timestamp: Long, pattern: String = "MMM dd, yyyy"): String {
+    val sdf = SimpleDateFormat(pattern, Locale.getDefault())
+    val date = Date(timestamp)
+    return sdf.format(date)
+}

@@ -9,6 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.softwarica.sondr.utils.CloudinaryService
 
 class PostRepositoryImpl(
@@ -117,5 +120,21 @@ class PostRepositoryImpl(
             .addOnFailureListener { e ->
                 callback(false, e.message ?: "Failed to get user posts", emptyList())
             }
+    }
+
+    override fun getPostsCountForUser(
+        username: String,
+        callback: (Boolean, String, Int) -> Unit
+    ) {
+        postsRef.orderByChild("author").equalTo(username)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val count = snapshot.childrenCount.toInt()
+                    callback(true, "Posts count fetched", count)
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    callback(false, error.message, 0)
+                }
+            })
     }
 }

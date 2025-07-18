@@ -26,8 +26,11 @@ import com.softwarica.sondr.R
 import com.softwarica.sondr.model.PostModel
 import com.softwarica.sondr.ui.components.PostItem
 import com.softwarica.sondr.model.PostType
+import com.softwarica.sondr.model.UserModel
 import com.softwarica.sondr.repository.PostRepository
 import com.softwarica.sondr.repository.PostRepositoryImpl
+import com.softwarica.sondr.repository.UserRepositoryImpl
+import com.softwarica.sondr.utils.formatTimestampToDate
 
 @Composable
 fun ProfileScreen() {
@@ -39,18 +42,31 @@ fun ProfileScreen() {
 
     var posts by remember { mutableStateOf<List<PostModel>>(emptyList()) }
     val postRepository: PostRepository = remember { PostRepositoryImpl(context) }
+    val userRepository = UserRepositoryImpl(context)
+
+    var userModel by remember { mutableStateOf<UserModel?>(null) }
+    var postsCount by remember { mutableIntStateOf(0) }
+
 
     LaunchedEffect(Unit) {
-        postRepository.getAllPosts { success, message, result ->
-            if (success) {
-                // Filter posts by current user (match author or authorID)
-                posts = result.filter { it.author == savedUsername || it.authorID == savedUsername }.reversed()
+        userRepository.getCurrentUserInfo { success, message, user ->
+            if (success && user != null) {
+                userModel = user
             } else {
-                Log.e("Firebase", "Error fetching posts: $message")
+                Log.e("ProfileScreen", "Failed to fetch user info: $message")
+            }
+        }
+
+        postRepository.getAllPosts { success, message, allPosts ->
+            if (success) {
+                val userPosts = allPosts.filter { it.author == savedUsername || it.authorID == savedUsername }
+                posts = userPosts.reversed()
+                postsCount = userPosts.size
+            } else {
+                Log.e("ProfileScreen", "Error fetching posts: $message")
             }
         }
     }
-
 
 
     LazyColumn(
@@ -87,7 +103,7 @@ fun ProfileScreen() {
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "you're halfway there",
+                text = userModel?.bio ?: "",
                 color = Color.LightGray,
                 fontSize = 14.sp
             )
@@ -106,14 +122,13 @@ fun ProfileScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    ProfileStat("321", "Posts")
-                    ProfileStat("06-25", "Joined")
-                    ProfileStat("1,023", "Followers")
+                    ProfileStat(value = postsCount.toString(), label = "Posts")
+                    ProfileStat(value = formatTimestampToDate(userModel?.createdAt ?: 0L), label = "Joined")
+                    ProfileStat(value = userModel?.followers?.toString() ?: "0", label = "Followers")
                 }
             }
             Spacer(Modifier.height(24.dp))
         }
-
         item {
             Column(
                 modifier = Modifier
