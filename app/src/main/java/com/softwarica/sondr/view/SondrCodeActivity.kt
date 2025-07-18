@@ -43,6 +43,8 @@ import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.border
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -102,6 +104,8 @@ fun SondrCodeActivityBody(
     val context = LocalContext.current
     val activity = context as? Activity
     var canCopy by remember { mutableStateOf(true) }
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
 
     Scaffold(
     ) { innerPadding ->
@@ -352,8 +356,9 @@ fun SondrCodeActivityBody(
             item {
                 Button(
                     onClick = {
-                        activity?.startActivity(Intent(activity, LoginActivity::class.java))
-                        activity?.finish()
+                        showConfirmDialog = true  // show dialog on click
+//                        activity?.startActivity(Intent(activity, LoginActivity::class.java))
+//                        activity?.finish()
                     },
                     modifier = Modifier
                         .width(340.dp)
@@ -376,6 +381,79 @@ fun SondrCodeActivityBody(
             item { Spacer(Modifier.height(8.dp)) }
         }
     }
+    if (showConfirmDialog) {
+        Box(
+            modifier = Modifier
+                .background(Color(0xFF121212))
+                .border(
+                    width = 1.5.dp,
+                    color = Color.White,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(8.dp) // small padding so border isn't cut off
+        ) {
+            AlertDialog(
+                onDismissRequest = { showConfirmDialog = false },
+                title = {
+                    Text(
+                        text = "Confirmation",
+                        fontFamily = LoraFont,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                },
+                text = {
+                    Text(
+                        "Are you sure you saved your sondr code?",
+                        fontFamily = LoraFont,
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showConfirmDialog = false
+                            activity?.startActivity(Intent(activity, LoginActivity::class.java))
+                            activity?.finish()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text(
+                            text = "Yes I did",
+                            color = Color(0xFF121212),
+                            fontFamily = LoraFont,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showConfirmDialog = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "No, wait!",
+                            color = Color(0xFF121212),
+                            fontFamily = LoraFont,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                },
+                containerColor = Color(0xFF121212),
+                shape = RoundedCornerShape(8.dp)
+            )
+        }
+    }
+
+
 
 }
 
