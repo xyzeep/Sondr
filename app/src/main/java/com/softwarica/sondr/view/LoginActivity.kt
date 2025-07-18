@@ -94,8 +94,8 @@ fun LoginBody() {
     var sondrCode by remember { mutableStateOf("") }
 
     val context = LocalContext.current
-    val sharedPreferences = context.getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
     val activity = context as? Activity
+    val sharedPreferences = context.getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
     var loading by remember { mutableStateOf(false) }
 
 
