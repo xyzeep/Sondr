@@ -169,7 +169,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
                             .padding(vertical = 12.dp)
                             .clip(shape = RoundedCornerShape(8.dp))
                             .background(color = Color.White)
-                            .clickable { isFullscreen = true } // 👈 Tap to go fullscreen
+                            .clickable { isFullscreen = true }
                     ) {
                         photoUri?.let {
                             AsyncImage(

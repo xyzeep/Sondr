@@ -7,12 +7,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.graphicsLayer
-import android.graphics.RenderEffect
-import android.graphics.Shader
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -24,18 +25,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import com.softwarica.sondr.R
 import com.softwarica.sondr.model.PostModel
 import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.utils.getTimeAgo
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PostItem(post: PostModel) {
+fun PostItem(post: PostModel, onRequestFullscreen: (String) -> Unit) {
 
     val isNSFW = post.nsfw
     var isBlurred by remember { mutableStateOf(isNSFW) }
+    var isFullscreen by remember { mutableStateOf(false) }
+
+
 
     Column(
         modifier = Modifier
@@ -67,7 +71,10 @@ fun PostItem(post: PostModel) {
                         .fillMaxWidth()
                         .height(200.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable { if (isNSFW) isBlurred = !isBlurred } // toggle blur
+                        .combinedClickable(
+                            onClick = { if (post.nsfw) isBlurred = !isBlurred },
+                            onLongClick = { onRequestFullscreen(post.mediaRes.toString()) }
+                        )
                 ) {
                     Image(
                         painter = rememberAsyncImagePainter(model = post.mediaRes),
@@ -143,4 +150,22 @@ fun PostItem(post: PostModel) {
             color = Color.White.copy(alpha = 0.3f)
         )
     }
+
+    if (isFullscreen) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.95f))
+                .clickable { isFullscreen = false },  // tap to close fullscreen
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(model = post.mediaRes),
+                contentDescription = "Full Image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
+
 }

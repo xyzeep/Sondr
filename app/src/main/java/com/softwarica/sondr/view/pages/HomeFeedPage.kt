@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.lazy.items
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import com.softwarica.sondr.repository.PostRepository
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,9 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.softwarica.sondr.R
 import com.softwarica.sondr.ui.components.PostItem
 import com.softwarica.sondr.model.PostType
@@ -74,6 +79,7 @@ fun HomeFeedPage() {
 @Composable
 fun Feed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String) -> Unit) {
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
+    var fullscreenImageUri by remember { mutableStateOf<String?>(null) }
 
     val filteredPosts = when (selectedFilter) {
         "Whisprs" -> posts.filter { it.type == PostType.WHISPR }
@@ -81,49 +87,67 @@ fun Feed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String
         else -> posts
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                filterOptions.forEach { chip ->
-                    FilterChip(
-                        selected = chip == selectedFilter,
-                        onClick = { onFilterChange(chip) },
-                        label = {
-                            Text(
-                                text = chip,
-                                fontWeight = FontWeight.Bold
-                            )
+    Box(modifier = Modifier.fillMaxSize()) {  // Wrap LazyColumn + overlay in Box
 
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = Color.White.copy(alpha = 0.18f),
-                            labelColor = Color.White,
-                            selectedContainerColor = Color.White,
-                            selectedLabelColor = Color.Black
-                        ),
-                        border = null,
-                    )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    filterOptions.forEach { chip ->
+                        FilterChip(
+                            selected = chip == selectedFilter,
+                            onClick = { onFilterChange(chip) },
+                            label = {
+                                Text(
+                                    text = chip,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = Color.White.copy(alpha = 0.18f),
+                                labelColor = Color.White,
+                                selectedContainerColor = Color.White,
+                                selectedLabelColor = Color.Black
+                            ),
+                            border = null,
+                        )
+                    }
                 }
-
             }
 
+            items(filteredPosts, key = { it.postID }) { post ->
+                PostItem(post = post, onRequestFullscreen = { uri ->
+                    fullscreenImageUri = uri
+                })
+            }
         }
-//        items(filteredPosts) { post ->
-//            PostItem(post = post)
-//        }
 
-        items(filteredPosts, key = { it.postID }) { post ->
-            PostItem(post = post)
+        // Fullscreen overlay
+        if (fullscreenImageUri != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.95f))
+                    .clickable { fullscreenImageUri = null },  // tap anywhere to close
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = fullscreenImageUri),
+                    contentDescription = "Full Image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
     }
 }
+
