@@ -7,8 +7,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.graphicsLayer
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,6 +33,10 @@ import com.softwarica.sondr.utils.getTimeAgo
 
 @Composable
 fun PostItem(post: PostModel) {
+
+    val isNSFW = post.nsfw
+    var isBlurred by remember { mutableStateOf(isNSFW) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,15 +62,38 @@ fun PostItem(post: PostModel) {
         Spacer(Modifier.height(6.dp))
         when (post.type) {
             PostType.SNAPSHOT -> {
-                Image(
-                    painter = rememberAsyncImagePainter(model = post.mediaRes),
-                    contentDescription = null,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop
-                )
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { if (isNSFW) isBlurred = !isBlurred } // toggle blur
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = post.mediaRes),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .blur(if (isBlurred) 16.dp else 0.dp)
+                    )
+
+                    if (isBlurred) {
+                        Text(
+                            text = "NSFW",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color.Black.copy(alpha = 0.5f))
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+
+                        )
+                    }
+                }
+
             }
             PostType.WHISPR -> {
                 Image(
