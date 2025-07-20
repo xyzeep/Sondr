@@ -37,10 +37,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.google.firebase.Firebase
 import com.softwarica.sondr.R
 import com.softwarica.sondr.ui.components.PostItem
 import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.repository.PostRepositoryImpl
+import com.softwarica.sondr.repository.UserRepository
+import com.softwarica.sondr.repository.UserRepositoryImpl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,8 +51,13 @@ fun HomeFeedPage() {
     var selectedFilter by remember { mutableStateOf("All") }
     var posts by remember { mutableStateOf<List<PostModel>>(emptyList()) }
 
+
+
     val context = LocalContext.current
     val postRepository: PostRepository = remember { PostRepositoryImpl(context) }
+
+    val userRepository: UserRepository = remember { UserRepositoryImpl(context) }
+    var currentUserId by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         postRepository.getAllPosts { success, message, result ->
@@ -60,6 +68,16 @@ fun HomeFeedPage() {
             }
         }
     }
+    LaunchedEffect(Unit) {
+        userRepository.getCurrentUserInfo { success, message, user ->
+            if (success && user != null) {
+                currentUserId = user.userID
+            } else {
+                Log.e("User", "Error getting current user: $message")
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -70,17 +88,25 @@ fun HomeFeedPage() {
         Feed(
             posts = posts,
             selectedFilter = selectedFilter,
-            onFilterChange = { selectedFilter = it }
+            onFilterChange = { selectedFilter = it },
+            currentUserId = currentUserId,
+            postRepository = postRepository
         )
     }
 }
 
 // fun to load feed
 @Composable
-fun Feed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String) -> Unit) {
+fun Feed(
+    posts: List<PostModel>,
+    selectedFilter: String,
+    onFilterChange: (String) -> Unit,
+    currentUserId: String?,
+    postRepository: PostRepository
+) {
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
     var fullscreenImageUri by remember { mutableStateOf<String?>(null) }
-
+    val likedPosts = remember { mutableStateOf(setOf<String>()) }
     val filteredPosts = when (selectedFilter) {
         "Whisprs" -> posts.filter { it.type == PostType.WHISPR }
         "Snapshots" -> posts.filter { it.type == PostType.SNAPSHOT }
@@ -125,10 +151,26 @@ fun Feed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String
             }
 
             items(filteredPosts, key = { it.postID }) { post ->
-                PostItem(post = post, onRequestFullscreen = { uri ->
-                    fullscreenImageUri = uri
-                })
+                PostItem(
+                    post = post,
+                    onRequestFullscreen = { uri -> fullscreenImageUri = uri },
+                    onLikeToggle = { post, isNowLiked ->
+                        if (currentUserId == null) return@PostItem
+
+                        if (isNowLiked) {
+                            postRepository.likePost(post.postID, currentUserId) { success, message ->
+                                if (!success) Log.e("LikePost", message)
+                            }
+                        } else {
+                            postRepository.unlikePost(post.postID, currentUserId) { success, message ->
+                                if (!success) Log.e("UnlikePost", message)
+                            }
+                        }
+                    },
+                    currentUserId = currentUserId.toString()
+                )
             }
+
         }
 
         // Fullscreen overlay
@@ -150,4 +192,6 @@ fun Feed(posts: List<PostModel>, selectedFilter: String, onFilterChange: (String
         }
     }
 }
+
+
 

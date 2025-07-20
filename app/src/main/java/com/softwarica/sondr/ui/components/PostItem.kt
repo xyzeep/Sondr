@@ -33,10 +33,17 @@ import com.softwarica.sondr.utils.getTimeAgo
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PostItem(post: PostModel, onRequestFullscreen: (String) -> Unit) {
+fun PostItem(
+    post: PostModel,
+    currentUserId: String,
+    onRequestFullscreen: (String) -> Unit,
+    onLikeToggle: (PostModel, Boolean) -> Unit
+){
 
     val isNSFW = post.nsfw
     var isBlurred by remember { mutableStateOf(isNSFW) }
+    var isLiked by remember { mutableStateOf(post.likedBy.contains(currentUserId)) }
+    var likeCount by remember { mutableStateOf(post.likes) }
     var isFullscreen by remember { mutableStateOf(false) }
 
 
@@ -52,16 +59,18 @@ fun PostItem(post: PostModel, onRequestFullscreen: (String) -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "by ${post.authorID}", color = Color.White.copy(alpha = 0.8f), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(text = "@${post.authorID}", color = Color.White.copy(alpha = 0.8f), fontSize = 18.sp, fontWeight = FontWeight.Bold)
 
             Icon(
                 painter = painterResource(R.drawable.baseline_more_horiz_24),
-                contentDescription = "more_options",
-                modifier = Modifier.clickable {
-                    // TODO
-                },
+                contentDescription = "like",
+                modifier = Modifier
+                    .width(32.dp),
                 tint = Color.White
             )
+
+//            (if (isLiked) R.drawable.baseline_heart_broken_24 else R.drawable.heart)
+//            tint = if (isLiked) Color.Red else Color.White
         }
         Spacer(Modifier.height(6.dp))
         when (post.type) {
@@ -69,7 +78,7 @@ fun PostItem(post: PostModel, onRequestFullscreen: (String) -> Unit) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(300.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .combinedClickable(
                             onClick = { if (post.nsfw) isBlurred = !isBlurred },
@@ -113,9 +122,12 @@ fun PostItem(post: PostModel, onRequestFullscreen: (String) -> Unit) {
                 )
             }
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = post.caption, color = Color.White, fontSize = 16.sp)
+
+        if(post.caption != "") {
+            Text(text = post.caption, color = Color.White, fontSize = 18.sp)
+
+        }
 
         Row(
             modifier = Modifier
@@ -125,21 +137,33 @@ fun PostItem(post: PostModel, onRequestFullscreen: (String) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row (
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+
+                    .clickable {
+                        isLiked = !isLiked
+                        likeCount += if (isLiked) 1 else -1
+                        onLikeToggle(post, isLiked) // pass to parent to handle Firestore update
+                    }
             ){
                 Icon(
+//                    painter = painterResource(if (isLiked) R.drawable.baseline_heart_broken_24 else R.drawable.heart),
                     painter = painterResource(R.drawable.heart),
+
                     contentDescription = "like",
                     modifier = Modifier
-                        .width(28.dp)
+                        .width(32.dp)
                         .clickable {
                         // TODO
                     },
-                    tint = Color.White
+                    tint = (if (isLiked) Color.Red else Color.White)
                 )
-                Text(text = "${post.likes} likes", color = Color.White, fontSize = 14.sp)
+
+
+                Text(text = "$likeCount likes", color = Color.White, fontSize = 18.sp)
+
             }
-            Text(text = getTimeAgo(post.createdAt), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(text = getTimeAgo(post.createdAt), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp, fontWeight = FontWeight.Normal)
 
         }
         HorizontalDivider(

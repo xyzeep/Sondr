@@ -15,5 +15,6 @@ data class PostModel(
     val nsfw: Boolean = false,
     val isPrivate: Boolean = false,
     val mediaRes: String? = null,
+    val likedBy: List<String> = emptyList(),
     val createdAt: Long = System.currentTimeMillis()
 )

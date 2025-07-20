@@ -9,5 +9,6 @@ interface PostRepository {
     fun deletePost(postId: String, callback: (Boolean, String) -> Unit)
     fun getAllPostsOfUser(userId: String, callback: (Boolean, String, List<PostModel>) -> Unit)
     fun getPostsCountForUser(username: String, callback: (Boolean, String, Int) -> Unit)
-
+    fun likePost(postId: String, userId: String, callback: (Boolean, String) -> Unit)
+    fun unlikePost(postId: String, userId: String, callback: (Boolean, String) -> Unit)
 }

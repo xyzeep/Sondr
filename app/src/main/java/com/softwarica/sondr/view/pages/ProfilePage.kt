@@ -52,11 +52,15 @@ fun ProfileScreen() {
     var userModel by remember { mutableStateOf<UserModel?>(null) }
     var postsCount by remember { mutableIntStateOf(0) }
 
+    var currentUserId by remember { mutableStateOf<String?>(null) }
+
+
 
     LaunchedEffect(Unit) {
         userRepository.getCurrentUserInfo { success, message, user ->
             if (success && user != null) {
                 userModel = user
+                currentUserId = user.userID
             } else {
                 Log.e("ProfileScreen", "Failed to fetch user info: $message")
             }
@@ -154,8 +158,27 @@ fun ProfileScreen() {
                         posts = posts,
                         selectedFilter = selectedFilter,
                         onFilterChange = { selectedFilter = it },
-                        onRequestFullscreen = { uri -> fullscreenImageUri = uri }
+                        onRequestFullscreen = { uri -> fullscreenImageUri = uri },
+                        currentUserId = currentUserId,
+                        onLikeToggle = { post, isLiked ->
+                            if (currentUserId == null) return@ProfileFeed
+
+                            if (isLiked) {
+                                postRepository.likePost(post.postID,
+                                    currentUserId!!
+                                ) { success, message ->
+                                    if (!success) Log.e("ProfileScreen", message)
+                                }
+                            } else {
+                                postRepository.unlikePost(post.postID,
+                                    currentUserId!!
+                                ) { success, message ->
+                                    if (!success) Log.e("ProfileScreen", message)
+                                }
+                            }
+                        }
                     )
+
 
 
 
@@ -178,7 +201,7 @@ fun ProfileScreen() {
                 contentDescription = "Fullscreen Image",
                 modifier = Modifier
                     .fillMaxWidth(),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Crop
             )
         }
     }
@@ -190,8 +213,11 @@ fun ProfileFeed(
     posts: List<PostModel>,
     selectedFilter: String,
     onFilterChange: (String) -> Unit,
-    onRequestFullscreen: (String) -> Unit
+    onRequestFullscreen: (String) -> Unit,
+    currentUserId: String?,
+    onLikeToggle: (post: PostModel, isNowLiked: Boolean) -> Unit
 )
+
 
  {
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
@@ -234,7 +260,9 @@ fun ProfileFeed(
             filteredPosts.forEach { post ->
                 PostItem(
                     post = post,
-                    onRequestFullscreen = { uri -> onRequestFullscreen(uri) }
+                    onRequestFullscreen = { uri -> onRequestFullscreen(uri) },
+                    currentUserId = currentUserId.toString(),
+                    onLikeToggle = onLikeToggle
                 )
 
 

@@ -11,6 +11,8 @@ import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import com.softwarica.sondr.utils.CloudinaryService
 
@@ -44,7 +46,8 @@ class PostRepositoryImpl(
 
                 val postToSave = post.copy(
                     postID = newPostId,
-                    mediaRes = uploadedUrl ?: post.mediaRes // replace with Cloudinary URL if uploaded
+                    mediaRes = uploadedUrl
+                        ?: post.mediaRes // replace with Cloudinary URL if uploaded
                 )
 
                 postsRef.child(newPostId).setValue(postToSave)
@@ -108,7 +111,10 @@ class PostRepositoryImpl(
             }
     }
 
-    override fun getAllPostsOfUser(userId: String, callback: (Boolean, String, List<PostModel>) -> Unit) {
+    override fun getAllPostsOfUser(
+        userId: String,
+        callback: (Boolean, String, List<PostModel>) -> Unit
+    ) {
         postsRef.orderByChild("authorID").equalTo(userId).get()
             .addOnSuccessListener { snapshot ->
                 val posts = mutableListOf<PostModel>()
@@ -132,9 +138,86 @@ class PostRepositoryImpl(
                     val count = snapshot.childrenCount.toInt()
                     callback(true, "Posts count fetched", count)
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     callback(false, error.message, 0)
                 }
             })
+    }
+
+    override fun likePost(postId: String, userId: String, callback: (Boolean, String) -> Unit) {
+        val postRef = postsRef.child(postId)
+        postRef.runTransaction(object : Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val post =
+                    currentData.getValue(PostModel::class.java) ?: return Transaction.success(
+                        currentData
+                    )
+
+                // Update likes count
+                val updatedLikes = post.likes + 1
+
+                // Update likedBy list
+                val updatedLikedBy = post.likedBy?.toMutableList() ?: mutableListOf()
+                if (!updatedLikedBy.contains(userId)) {
+                    updatedLikedBy.add(userId)
+                }
+
+                // Set updated values back
+                currentData.child("likes").value = updatedLikes
+                currentData.child("likedBy").value = updatedLikedBy.distinct()
+
+                return Transaction.success(currentData)
+            }
+
+            override fun onComplete(
+                error: DatabaseError?,
+                committed: Boolean,
+                currentData: DataSnapshot?
+            ) {
+                if (error != null) {
+                    callback(false, error.message ?: "Unknown error")
+                } else {
+                    callback(true, "Post liked")
+                }
+            }
+        })
+    }
+
+    override fun unlikePost(postId: String, userId: String, callback: (Boolean, String) -> Unit) {
+        val postRef = postsRef.child(postId)
+        postRef.runTransaction(object : Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val post =
+                    currentData.getValue(PostModel::class.java) ?: return Transaction.success(
+                        currentData
+                    )
+
+                // Update likes count safely
+                val updatedLikes = if (post.likes > 0) post.likes - 1 else 0
+
+                // Update likedBy list
+                val updatedLikedBy = post.likedBy?.toMutableList() ?: mutableListOf()
+                updatedLikedBy.remove(userId)
+
+                // Set updated values back
+                currentData.child("likes").value = updatedLikes
+                currentData.child("likedBy").value = updatedLikedBy.distinct()
+
+                return Transaction.success(currentData)
+            }
+
+            override fun onComplete(
+                error: DatabaseError?,
+                committed: Boolean,
+                currentData: DataSnapshot?
+            ) {
+                if (error != null) {
+                    callback(false, error.message ?: "Unknown error")
+                } else {
+                    callback(true, "Post unliked")
+                }
+            }
+        })
     }
 }
