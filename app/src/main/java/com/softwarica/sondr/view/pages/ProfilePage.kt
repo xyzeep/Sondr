@@ -33,6 +33,7 @@ import com.softwarica.sondr.model.UserModel
 import com.softwarica.sondr.repository.PostRepository
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
+import com.softwarica.sondr.utils.downloadImage
 import com.softwarica.sondr.utils.formatTimestampToDate
 
 @Composable
@@ -220,6 +221,7 @@ fun ProfileFeed(
 
 
  {
+     val context = LocalContext.current
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
 
     Column {
@@ -262,7 +264,10 @@ fun ProfileFeed(
                     post = post,
                     onRequestFullscreen = { uri -> onRequestFullscreen(uri) },
                     currentUserId = currentUserId.toString(),
-                    onLikeToggle = onLikeToggle
+                    onLikeToggle = onLikeToggle,
+                    onDownload = { post ->
+                        downloadImage(context, post.mediaRes.toString(), "sondr_${post.postID}.jpg")
+                    }
                 )
 
 

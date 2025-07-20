@@ -49,8 +49,9 @@ fun PostItem(
     post: PostModel,
     currentUserId: String,
     onRequestFullscreen: (String) -> Unit,
-    onLikeToggle: (PostModel, Boolean) -> Unit
-){
+    onLikeToggle: (PostModel, Boolean) -> Unit,
+    onDownload: (PostModel) -> Unit,
+    ){
 
     val isNSFW = post.nsfw
     var isBlurred by remember { mutableStateOf(isNSFW) }
@@ -104,7 +105,7 @@ fun PostItem(
                                     text = { Text("Download", color = Color.White) },
                                     onClick = {
                                         optionsExpanded = false
-                                        // TODO: handle download
+                                        onDownload(post)
                                     }
                                 )
                                 DropdownMenuItem(
