@@ -1,4 +1,9 @@
 package com.softwarica.sondr.ui.components
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -48,7 +54,16 @@ fun PostItem(
     var likeCount by remember { mutableStateOf(post.likes) }
     var isFullscreen by remember { mutableStateOf(false) }
 
+    // new
+    var showHeart by remember { mutableStateOf(false) }
 
+    // new
+    LaunchedEffect(showHeart) {
+        if (showHeart) {
+            kotlinx.coroutines.delay(600)
+            showHeart = false
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -71,8 +86,7 @@ fun PostItem(
                 tint = Color.White
             )
 
-//            (if (isLiked) R.drawable.baseline_heart_broken_24 else R.drawable.heart)
-//            tint = if (isLiked) Color.Red else Color.White
+
         }
         Spacer(Modifier.height(6.dp))
         when (post.type) {
@@ -85,10 +99,14 @@ fun PostItem(
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onDoubleTap = {
-                                    isLiked = !isLiked
-                                    likeCount += if (isLiked) 1 else -1
-                                    onLikeToggle(post, isLiked)
-                                },
+                                    if (!isLiked) {
+                                        isLiked = true
+                                        likeCount += 1
+                                        onLikeToggle(post, true)
+                                    }
+                                    showHeart = true
+                                }
+                                ,
                                 onLongPress = {
                                     onRequestFullscreen(post.mediaRes.toString())
                                 },
@@ -122,6 +140,8 @@ fun PostItem(
 
                         )
                     }
+                    // new
+                    DoubleTapHeartOverlay(showHeart)
                 }
 
             }
@@ -161,13 +181,11 @@ fun PostItem(
                     }
             ){
                 Icon(
-//                    painter = painterResource(if (isLiked) R.drawable.baseline_heart_broken_24 else R.drawable.heart),
-                    painter = painterResource(R.drawable.heart),
+                    painter = painterResource(if (isLiked) R.drawable.heart_solid else R.drawable.heart_empty),
 
                     contentDescription = "like",
                     modifier = Modifier
-                        .width(32.dp)
-                        ,
+                        .width(32.dp),
                     tint = (if (isLiked) Color.Red else Color.White)
                 )
 
@@ -204,4 +222,24 @@ fun PostItem(
         }
     }
 
+}
+
+@Composable
+private fun DoubleTapHeartOverlay(visible: Boolean) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + scaleIn(),
+        exit = fadeOut() + scaleOut()
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Icon(
+                painter = painterResource(R.drawable.heart_solid),
+                contentDescription = "Floating Heart",
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(150.dp),
+                tint = (Color.Red.copy(alpha = 0.5f))
+            )
+        }
+    }
 }
