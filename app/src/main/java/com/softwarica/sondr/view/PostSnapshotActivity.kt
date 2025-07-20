@@ -332,6 +332,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
                                         caption = snapshotCaption,
                                         likes = 0,
                                         nsfw = nsfw,
+                                        likedBy = emptyList(),
                                         isPrivate = isPrivate,
                                         mediaRes = photoUri?.toString()
                                     )
