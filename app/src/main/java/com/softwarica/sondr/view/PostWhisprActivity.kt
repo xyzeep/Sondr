@@ -1,5 +1,6 @@
 package com.softwarica.sondr.view
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -60,14 +61,15 @@ import com.softwarica.sondr.components.Loading
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.theme.InterFont
-import androidx.core.net.toUri
 
 class PostWhisprActivity : ComponentActivity() {
+    @SuppressLint("UseKtx")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val audioUri = intent.getStringExtra("audioUri")?.toUri()
+
+        val audioUri = intent.getStringExtra("audioUri")?.let { Uri.parse(it) }
 
         setContent {
             PostWhisprBody(audioUri)
