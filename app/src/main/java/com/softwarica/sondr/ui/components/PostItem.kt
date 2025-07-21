@@ -20,6 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.softwarica.sondr.R
 import com.softwarica.sondr.model.PostModel
 import com.softwarica.sondr.model.PostType
@@ -45,15 +49,16 @@ fun PostItem(
     post: PostModel,
     currentUserId: String,
     onRequestFullscreen: (String) -> Unit,
-    onLikeToggle: (PostModel, Boolean) -> Unit
-){
+    onLikeToggle: (PostModel, Boolean) -> Unit,
+    onDownload: (PostModel) -> Unit,
+    ){
 
     val isNSFW = post.nsfw
     var isBlurred by remember { mutableStateOf(isNSFW) }
     var isLiked by remember { mutableStateOf(post.likedBy.contains(currentUserId)) }
     var likeCount by remember { mutableStateOf(post.likes) }
     var isFullscreen by remember { mutableStateOf(false) }
-
+    var optionsExpanded by remember { mutableStateOf(false) }
     // new
     var showHeart by remember { mutableStateOf(false) }
 
@@ -78,17 +83,57 @@ fun PostItem(
         ) {
             Text(text = "@${post.authorID}", color = Color.White.copy(alpha = 0.8f), fontSize = 18.sp, fontWeight = FontWeight.Bold)
 
-            Icon(
-                painter = painterResource(R.drawable.baseline_more_horiz_24),
-                contentDescription = "like",
-                modifier = Modifier
-                    .width(32.dp),
-                tint = Color.White
-            )
+            IconButton(onClick = { optionsExpanded = true }) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_more_horiz_24),
+                        contentDescription = "More options",
+                        tint = Color.White,
+                        modifier = Modifier.width(32.dp)
+                    )
+                }
+
+                if (optionsExpanded) {
+                    Dialog(onDismissRequest = { optionsExpanded = false }) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .background(Color(0xFF242830), shape = RoundedCornerShape(12.dp))
+                                .padding(8.dp)
+                        ) {
+                            Column {
+                                DropdownMenuItem(
+                                    text = { Text("Download", color = Color.White) },
+                                    onClick = {
+                                        optionsExpanded = false
+                                        onDownload(post)
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Report",  color = Color.White) },
+                                    onClick = {
+                                        optionsExpanded = false
+                                        // TODO: handle report
+                                    }
+                                )
+                                if (post.authorID == currentUserId) {
+                                    DropdownMenuItem(
+                                        text = { Text("Delete",  color = Color.Red) },
+                                        onClick = {
+                                            optionsExpanded = false
+                                            // TODO: handle delete
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+
 
 
         }
-        Spacer(Modifier.height(6.dp))
+
         when (post.type) {
             PostType.SNAPSHOT -> {
                 Box(

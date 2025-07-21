@@ -44,6 +44,7 @@ import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepository
 import com.softwarica.sondr.repository.UserRepositoryImpl
+import com.softwarica.sondr.utils.downloadImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,6 +105,7 @@ fun Feed(
     currentUserId: String?,
     postRepository: PostRepository
 ) {
+    val context = LocalContext.current
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
     var fullscreenImageUri by remember { mutableStateOf<String?>(null) }
     val likedPosts = remember { mutableStateOf(setOf<String>()) }
@@ -167,7 +169,10 @@ fun Feed(
                             }
                         }
                     },
-                    currentUserId = currentUserId.toString()
+                    currentUserId = currentUserId.toString(),
+                    onDownload = { post ->
+                        downloadImage(context, post.mediaRes.toString(), "sondr_${post.postID}.jpg")
+                    }
                 )
             }
 

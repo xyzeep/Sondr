@@ -10,4 +10,6 @@
     <string name="title_activity_take_snapshot" />
     <string name="title_activity_take_snapshop">TakeSnapshopActivity</string>
     <string name="title_activity_sondr_code">SondrCodeActivity</string>
+    <string name="title_activity_whispr_recording">WhisprRecordingActivity</string>
+    <string name="title_activity_post_whispr">PostWhisprActivity</string>
 </resources>

@@ -199,7 +199,8 @@ fun NavigationBody() {
                                 modifier = Modifier
                                     .clickable {
                                         showCreateMenu = false
-                                        // TODO: Navigate to Whispr
+                                        val intent = Intent(context, WhisprRecordingActivity::class.java)
+                                        context.startActivity(intent)
                                     }
                                     .padding(horizontal = 20.dp, vertical = 12.dp)
                             ) {

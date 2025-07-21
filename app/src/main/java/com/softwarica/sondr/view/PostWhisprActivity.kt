@@ -1,11 +1,13 @@
 package com.softwarica.sondr.view
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Spacer
+
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -42,40 +46,44 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import com.softwarica.sondr.R
+import android.media.MediaPlayer
+import androidx.compose.runtime.DisposableEffect
 import com.softwarica.sondr.components.Loading
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.theme.InterFont
-import androidx.core.net.toUri
 
-class PostSnapshotActivity : ComponentActivity() {
+class PostWhisprActivity : ComponentActivity() {
+    @SuppressLint("UseKtx")
     override fun onCreate(savedInstanceState: Bundle?) {
-        val photoUriString = intent.getStringExtra("photoUri")
-        val photoUri = photoUriString?.toUri()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
+        val audioUri = intent.getStringExtra("audioUri")?.let { Uri.parse(it) }
+
         setContent {
-            PostSnapshotBody(photoUri)
+            PostWhisprBody(audioUri)
         }
     }
 }
 
 @Composable
-fun PostSnapshotBody(photoUri: Uri?) {
-    var snapshotCaption by remember { mutableStateOf("") }
+fun PostWhisprBody(audioUri: Uri?) {
+    var whisprCaption by remember { mutableStateOf("") }
     var nsfw by remember { mutableStateOf(true) }
     var isPrivate by remember { mutableStateOf(false) }
-    var isFullscreen by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
+    var isPlaying by remember { mutableStateOf(false) }
 
 
     val context = LocalContext.current
@@ -83,6 +91,31 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
     val postRepo = PostRepositoryImpl(context)
     val userRepo = UserRepositoryImpl(context)
+
+
+    val mediaPlayer = remember(audioUri) {
+        MediaPlayer().apply {
+            audioUri?.let {
+                try {
+                    setDataSource(context, it)
+                    prepare()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    DisposableEffect(mediaPlayer) {
+        val listener = MediaPlayer.OnCompletionListener {
+            isPlaying = false
+        }
+        mediaPlayer.setOnCompletionListener(listener)
+        onDispose {
+            mediaPlayer.release()
+        }
+    }
+
 
 
     Scaffold { innerPadding ->
@@ -100,7 +133,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
                 ) {
                     Text(
-                        text = "Snapshot",
+                        text = "Whispr",
                         modifier = Modifier.align(Alignment.Center),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -131,7 +164,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
                     }
 
 
-            }
+                }
             }
             item {
                 HorizontalDivider(
@@ -163,33 +196,30 @@ fun PostSnapshotBody(photoUri: Uri?) {
                         .padding(horizontal = 16.dp)
 
                 ){
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(278.dp)
-                            .padding(vertical = 12.dp)
-                            .clip(shape = RoundedCornerShape(8.dp))
-                            .background(color = Color.White)
-                            .clickable { isFullscreen = true }
-                    ) {
-                        photoUri?.let {
-                            AsyncImage(
-                                model = it,
-                                contentDescription = "Captured Snapshot",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(278.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
+                   // HERE HERE HERE THE WAVE FORM THINGY
+                    Icon(
+                        painter = painterResource(if (isPlaying) R.drawable.baseline_pause_circle_24 else R.drawable.baseline_play_circle_24),
+
+                        contentDescription = if (isPlaying) "Pause" else "Play",
+                        tint = Color.White,
+                        modifier = Modifier.size(100.dp).clickable {
+                            if (isPlaying) {
+                                mediaPlayer.pause()
+                                isPlaying = false
+                            } else {
+                                mediaPlayer.start()
+                                isPlaying = true
+                            }
                         }
-                    }
+                    )
+
+                    Spacer(Modifier.height(16.dp))
 
                     OutlinedTextField(
-                        value = snapshotCaption,
+                        value = whisprCaption,
                         onValueChange = { input ->
                             if (input.length <= 70) {
-                                snapshotCaption = input
+                                whisprCaption = input
                             }
                         },
                         modifier = Modifier
@@ -216,7 +246,7 @@ fun PostSnapshotBody(photoUri: Uri?) {
                         ),
                         suffix = {
                             Text(
-                                text = "${snapshotCaption.length}/70",
+                                text = "${whisprCaption.length}/70",
                                 color = Color.White.copy(alpha = 0.5f),
                                 fontSize = 16.sp,
                                 fontFamily = InterFont
@@ -323,37 +353,37 @@ fun PostSnapshotBody(photoUri: Uri?) {
 
                     Button(
                         onClick = {
-                            loading = true
-                            userRepo.getCurrentUserInfo { success, msg, user ->
-                                if (success && user != null) {
-                                    val postModel = com.softwarica.sondr.model.PostModel(
-                                        authorID = user.userID,
-                                        author = user.username,
-                                        type = com.softwarica.sondr.model.PostType.SNAPSHOT,
-                                        caption = snapshotCaption,
-                                        likes = 0,
-                                        nsfw = nsfw,
-                                        likedBy = emptyList(),
-                                        isPrivate = isPrivate,
-                                        mediaRes = photoUri?.toString()
-                                    )
-
-                                    postRepo.createPost(postModel) { postSuccess, postMessage ->
-                                        if (postSuccess) {
-                                            val intent = Intent(context, NavigationActivity::class.java)
-                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                            context.startActivity(intent)
-                                            (context as? Activity)?.finish()
-                                            loading = false
-                                            Toast.makeText(context, "Snapshot Posted!", Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            Toast.makeText(context, postMessage, Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                } else {
-                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                                }
-                            }
+//                            loading = true
+//                            userRepo.getCurrentUserInfo { success, msg, user ->
+//                                if (success && user != null) {
+//                                    val postModel = PostModel(
+//                                        authorID = user.userID,
+//                                        author = user.username,
+//                                        type = PostType.WHISPR,
+//                                        caption = whisprCaption,
+//                                        likes = 0,
+//                                        nsfw = nsfw,
+//                                        likedBy = emptyList(),
+//                                        isPrivate = isPrivate,
+////                                        mediaRes = photoUri?.toString()
+//                                    )
+//
+//                                    postRepo.createPost(postModel) { postSuccess, postMessage ->
+//                                        if (postSuccess) {
+//                                            val intent = Intent(context, NavigationActivity::class.java)
+//                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//                                            context.startActivity(intent)
+//                                            (context as? Activity)?.finish()
+//                                            loading = false
+//                                            Toast.makeText(context, "Whispr Posted!", Toast.LENGTH_SHORT).show()
+//                                        } else {
+//                                            Toast.makeText(context, postMessage, Toast.LENGTH_SHORT).show()
+//                                        }
+//                                    }
+//                                } else {
+//                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+//                                }
+//                            }
                         },
 
                         modifier = Modifier
@@ -379,34 +409,17 @@ fun PostSnapshotBody(photoUri: Uri?) {
                 }
 
 
-                }
-            }
-        if (isFullscreen && photoUri != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.95f))
-                    .clickable { isFullscreen = false }, // 👈 Tap to exit fullscreen
-                contentAlignment = Alignment.Center
-            ) {
-                AsyncImage(
-                    model = photoUri,
-                    contentDescription = "Full Image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp), // Optional padding
-                    contentScale = ContentScale.Fit
-                )
             }
         }
 
+
     }
-    Loading(isLoading = loading, message = "Posting your snapshot...")
-    }
+    Loading(isLoading = loading, message = "Posting your Whispr...")
+}
 
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewPostSnapshot() {
-    PostSnapshotBody(photoUri = null)
+fun PostWhisprPreview() {
+    PostWhisprBody(audioUri = null)
 }
