@@ -1,8 +1,15 @@
 package com.softwarica.sondr.view
 
 import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import android.Manifest
+import android.util.Log
+
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.LinearEasing
@@ -41,6 +48,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -55,11 +63,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.softwarica.sondr.ui.theme.InterFont
+import com.softwarica.sondr.utils.AudioRecorder
+import com.softwarica.sondr.utils.takePhoto
+
 
 
 class WhisprRecordingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                1001
+            )
+        }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -77,6 +100,10 @@ fun WhisprRecordingBody() {
     val isRecording = remember { mutableStateOf(false) }
     val isFinished = remember { mutableStateOf(false) }
     val showConfirmDialog = remember { mutableStateOf(false) }
+
+    val audioRecorder = remember { AudioRecorder(context) }
+    var audioUri by remember { mutableStateOf<Uri?>(null) }
+
 
     LaunchedEffect(isFinished.value) {
         if (isFinished.value) {
@@ -175,6 +202,23 @@ fun WhisprRecordingBody() {
                              onClick = {
                                 if (isRecording.value) {
                                     isFinished.value = true
+                                    try {
+                                        audioRecorder.stopRecording()
+                                        // log
+                                        Log.d("WhisprDebug", "Recording saved at: $audioUri")
+
+                                        audioUri = audioRecorder.getOutputUri()
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                    audioUri = audioRecorder.getOutputUri()
+                                }
+                                 else {
+                                    audioUri = audioRecorder.startRecording()
+
+                                    // log
+                                    Log.d("WhisprDebug", "Recording started at: $audioUri")
+
                                 }
                                 isRecording.value = !isRecording.value
                             },
@@ -243,7 +287,10 @@ fun WhisprRecordingBody() {
 
                                 Button(
                                     onClick = {
-                                        // TODO: Navigate to preview screen and pass audio URI or relevant data
+                                        val intent = Intent(context, PostWhisprActivity::class.java).apply {
+                                            putExtra("audioUri", audioUri.toString())
+                                        }
+                                        context.startActivity(intent)
                                     },
                                     modifier = Modifier
                                         .height(52.dp),
