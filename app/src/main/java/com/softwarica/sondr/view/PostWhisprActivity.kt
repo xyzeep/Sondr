@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Spacer
-
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -60,7 +57,10 @@ import androidx.compose.runtime.DisposableEffect
 import com.softwarica.sondr.components.Loading
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
+import com.softwarica.sondr.ui.components.WaveformSeekBarView
+import com.softwarica.sondr.ui.components.WaveformSeekBarView
 import com.softwarica.sondr.ui.theme.InterFont
+
 
 class PostWhisprActivity : ComponentActivity() {
     @SuppressLint("UseKtx")
@@ -89,8 +89,13 @@ fun PostWhisprBody(audioUri: Uri?) {
     val context = LocalContext.current
     val activity = context as? Activity
 
+
+    val audioPathString = audioUri?.toString()
+
     val postRepo = PostRepositoryImpl(context)
     val userRepo = UserRepositoryImpl(context)
+
+
 
 
     val mediaPlayer = remember(audioUri) {
@@ -197,6 +202,20 @@ fun PostWhisprBody(audioUri: Uri?) {
 
                 ){
                    // HERE HERE HERE THE WAVE FORM THINGY
+                    // Waveform visualizer
+
+
+
+                    WaveformSeekBarView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        context = context,
+                        audioUriString = audioPathString
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
                     Icon(
                         painter = painterResource(if (isPlaying) R.drawable.baseline_pause_circle_24 else R.drawable.baseline_play_circle_24),
 

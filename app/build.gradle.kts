@@ -65,6 +65,10 @@ dependencies {
     implementation("com.cloudinary:cloudinary-android:2.3.1")
     implementation ("androidx.activity:activity-ktx:1.7.2") // or latest
     implementation ("com.google.zxing:core:3.5.3")
+    implementation ("com.github.massoudss:waveformSeekBar:5.0.2")
+    implementation ("com.github.lincollincol:amplituda:2.2.2") // audio sample processing
+
+
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
