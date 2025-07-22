@@ -54,7 +54,7 @@ fun HomeFeedPage() {
     var posts by remember { mutableStateOf<List<PostModel>>(emptyList()) }
 
 
-
+    var refreshLoading by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val postRepository: PostRepository = remember { PostRepositoryImpl(context) }
@@ -70,6 +70,22 @@ fun HomeFeedPage() {
                 Log.e("Firebase", "Error fetching posts: $message")
             }
         }
+    }
+
+    fun refreshPosts() {
+        refreshLoading = true
+        postRepository.getAllPosts { success, message, result ->
+            if (success) {
+                posts = result.reversed()
+            } else {
+                Log.e("Firebase", "Error fetching posts: $message")
+            }
+            refreshLoading = false
+        }
+
+    }
+    LaunchedEffect(Unit) {
+        refreshPosts()
     }
     LaunchedEffect(Unit) {
         userRepository.getCurrentUserInfo { success, message, user ->
@@ -93,9 +109,15 @@ fun HomeFeedPage() {
             selectedFilter = selectedFilter,
             onFilterChange = { selectedFilter = it },
             currentUserId = currentUserId,
-            postRepository = postRepository
+            postRepository = postRepository,
+            onRefreshPosts = { refreshPosts() },
         )
+
+        Loading(isLoading = refreshLoading, message = "Refreshing posts...")
     }
+
+    Loading(isLoading = refreshLoading, message = "")
+
 
 }
 
@@ -106,7 +128,8 @@ fun Feed(
     selectedFilter: String,
     onFilterChange: (String) -> Unit,
     currentUserId: String?,
-    postRepository: PostRepository
+    postRepository: PostRepository,
+    onRefreshPosts: () -> Unit,
 ) {
     val context = LocalContext.current
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
@@ -184,6 +207,7 @@ fun Feed(
                         postRepository.deletePost(postId) { success, message ->
                             if (success) {
                                 Log.d("Delete", "Deleted: $postId")
+                                onRefreshPosts()
                                 // Optional: refresh list or show snackbar
                             } else {
                                 Log.e("Delete", "Failed: $message")
@@ -197,6 +221,7 @@ fun Feed(
 
         }
         Loading(isLoading = deleteLoading, message = "Deleting post...")
+
         // Fullscreen overlay
         if (fullscreenImageUri != null) {
             Box(
