@@ -55,6 +55,7 @@ fun PostItem(
     onRequestFullscreen: (String) -> Unit,
     onLikeToggle: (PostModel, Boolean) -> Unit,
     onDownload: (PostModel) -> Unit,
+    onDeletePost: (String) -> Unit
     ){
 
     val isNSFW = post.nsfw
@@ -124,11 +125,20 @@ fun PostItem(
                                     }
                                 )
                                 if (post.authorID == currentUserId) {
+
+                                    HorizontalDivider(
+                                        modifier = Modifier
+                                            .padding(vertical = 4.dp),
+                                        thickness = 1.dp,
+                                        color = Color.White.copy(alpha = 0.2f)
+                                    )
+
+
                                     DropdownMenuItem(
                                         text = { Text("Delete",  color = Color.Red) },
                                         onClick = {
                                             optionsExpanded = false
-                                            // TODO: handle delete
+                                            onDeletePost(post.postID)
                                         }
                                     )
                                 }

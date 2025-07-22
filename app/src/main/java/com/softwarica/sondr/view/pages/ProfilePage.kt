@@ -177,7 +177,8 @@ fun ProfileScreen() {
                                     if (!success) Log.e("ProfileScreen", message)
                                 }
                             }
-                        }
+                        },
+                        postRepository = postRepository
                     )
 
 
@@ -216,7 +217,8 @@ fun ProfileFeed(
     onFilterChange: (String) -> Unit,
     onRequestFullscreen: (String) -> Unit,
     currentUserId: String?,
-    onLikeToggle: (post: PostModel, isNowLiked: Boolean) -> Unit
+    onLikeToggle: (post: PostModel, isNowLiked: Boolean) -> Unit,
+    postRepository: PostRepository
 )
 
 
@@ -267,6 +269,16 @@ fun ProfileFeed(
                     onLikeToggle = onLikeToggle,
                     onDownload = { post ->
                         downloadImage(context, post.mediaRes.toString(), "sondr_${post.postID}.jpg")
+                    },
+                    onDeletePost = { postId ->
+                        postRepository.deletePost(postId) { success, message ->
+                            if (success) {
+                                Log.d("Delete", "Deleted: $postId")
+                                // Optional: refresh list or show snackbar
+                            } else {
+                                Log.e("Delete", "Failed: $message")
+                            }
+                        }
                     }
                 )
 

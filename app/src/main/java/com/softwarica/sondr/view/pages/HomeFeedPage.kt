@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.Firebase
 import com.softwarica.sondr.R
+import com.softwarica.sondr.components.Loading
 import com.softwarica.sondr.ui.components.PostItem
 import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.repository.PostRepositoryImpl
@@ -51,6 +52,7 @@ import com.softwarica.sondr.utils.downloadImage
 fun HomeFeedPage() {
     var selectedFilter by remember { mutableStateOf("All") }
     var posts by remember { mutableStateOf<List<PostModel>>(emptyList()) }
+
 
 
 
@@ -94,6 +96,7 @@ fun HomeFeedPage() {
             postRepository = postRepository
         )
     }
+
 }
 
 // fun to load feed
@@ -109,6 +112,9 @@ fun Feed(
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
     var fullscreenImageUri by remember { mutableStateOf<String?>(null) }
     val likedPosts = remember { mutableStateOf(setOf<String>()) }
+
+    var deleteLoading by remember { mutableStateOf(false) }
+
     val filteredPosts = when (selectedFilter) {
         "Whisprs" -> posts.filter { it.type == PostType.WHISPR }
         "Snapshots" -> posts.filter { it.type == PostType.SNAPSHOT }
@@ -172,12 +178,25 @@ fun Feed(
                     currentUserId = currentUserId.toString(),
                     onDownload = { post ->
                         downloadImage(context, post.mediaRes.toString(), "sondr_${post.postID}.jpg")
+                    },
+                    onDeletePost = { postId ->
+                        deleteLoading = true
+                        postRepository.deletePost(postId) { success, message ->
+                            if (success) {
+                                Log.d("Delete", "Deleted: $postId")
+                                // Optional: refresh list or show snackbar
+                            } else {
+                                Log.e("Delete", "Failed: $message")
+                            }
+                            deleteLoading = false  // <-- only set false after delete completes
+                        }
                     }
+
                 )
             }
 
         }
-
+        Loading(isLoading = deleteLoading, message = "Deleting post...")
         // Fullscreen overlay
         if (fullscreenImageUri != null) {
             Box(
@@ -196,6 +215,8 @@ fun Feed(
             }
         }
     }
+
+
 }
 
 
