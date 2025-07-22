@@ -1,4 +1,5 @@
 package com.softwarica.sondr.ui.components
+import android.media.MediaPlayer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -20,12 +21,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -201,30 +204,64 @@ fun PostItem(
 
             // WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR
             PostType.WHISPR -> {
+                val mediaPlayer = remember { MediaPlayer() }
+                var isPrepared by remember { mutableStateOf(false) }
+
+                LaunchedEffect(post.mediaRes) {
+                    try {
+                        mediaPlayer.reset()
+                        mediaPlayer.setDataSource(post.mediaRes)
+                        mediaPlayer.prepareAsync()
+                        mediaPlayer.setOnPreparedListener {
+                            isPrepared = true
+                            duration = it.duration / 1000 // in seconds
+                        }
+                        mediaPlayer.setOnCompletionListener {
+                            isPlaying = false
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+                DisposableEffect(Unit) {
+                    onDispose {
+                        mediaPlayer.release()
+                    }
+                }
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     IconButton(
                         onClick = {
-                            // TODO: Handle play/pause toggle
+                            if (isPrepared) {
+                                if (mediaPlayer.isPlaying) {
+                                    mediaPlayer.pause()
+                                    isPlaying = false
+                                } else {
+                                    mediaPlayer.start()
+                                    isPlaying = true
+                                }
+                            }
                         },
                         modifier = Modifier
                             .size(36.dp)
                             .background(Color(0xFF98C6E6), shape = CircleShape)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow, // or Pause if playing
-                            contentDescription = "Play",
-                            tint = Color.White
-                        )
+                       Icon(
+                           painter = painterResource(if (isPlaying) R.drawable.baseline_pause_circle_24 else R.drawable.baseline_play_circle_24),
+                           contentDescription = "Play/Pause",
+                           tint = Color.White
+                       )
                     }
 
                     Spacer(modifier = Modifier.width(12.dp))
 
-                    // WaveformSeekBarView (Compose wrapper for the waveform)
                     WaveformSeekBarView(
                         modifier = Modifier
                             .weight(1f)
@@ -236,12 +273,12 @@ fun PostItem(
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Text(
-                        text = "2:00", // TODO: Format duration dynamically
+                        text = formatDuration(duration),
                         color = Color.Gray
                     )
                 }
-
             }
+
 
             // WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR
         }
@@ -331,4 +368,10 @@ private fun DoubleTapHeartOverlay(visible: Boolean) {
             )
         }
     }
+}
+
+private fun formatDuration(seconds: Int): String {
+    val minutesPart = seconds / 60
+    val secondsPart = seconds % 60
+    return "%d:%02d".format(minutesPart, secondsPart)
 }
