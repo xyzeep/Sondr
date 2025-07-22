@@ -20,6 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
@@ -32,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,6 +65,10 @@ fun PostItem(
     var optionsExpanded by remember { mutableStateOf(false) }
     // new
     var showHeart by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    var isPlaying by remember { mutableStateOf(false) }
+    var duration by remember { mutableStateOf(0) }
 
     // new
     LaunchedEffect(showHeart) {
@@ -190,16 +198,52 @@ fun PostItem(
                 }
 
             }
+
+            // WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR
             PostType.WHISPR -> {
-                Image(
-                    painter = rememberAsyncImagePainter(model = post.mediaRes),
-                    contentDescription = "WHISPR",
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                )
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            // TODO: Handle play/pause toggle
+                        },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(Color(0xFF98C6E6), shape = CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow, // or Pause if playing
+                            contentDescription = "Play",
+                            tint = Color.White
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    // WaveformSeekBarView (Compose wrapper for the waveform)
+                    WaveformSeekBarView(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
+                        context = context,
+                        audioUriString = post.mediaRes.toString()
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(
+                        text = "2:00", // TODO: Format duration dynamically
+                        color = Color.Gray
+                    )
+                }
+
             }
+
+            // WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR
         }
         Spacer(modifier = Modifier.height(8.dp))
 

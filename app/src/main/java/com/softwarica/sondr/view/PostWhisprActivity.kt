@@ -53,8 +53,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.R
 import android.media.MediaPlayer
+import android.widget.Toast
 import androidx.compose.runtime.DisposableEffect
+import androidx.core.net.toUri
 import com.softwarica.sondr.components.Loading
+import com.softwarica.sondr.model.PostModel
+import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.components.WaveformSeekBarView
@@ -63,20 +67,16 @@ import com.softwarica.sondr.ui.theme.InterFont
 
 
 class PostWhisprActivity : ComponentActivity() {
-    @SuppressLint("UseKtx")
     override fun onCreate(savedInstanceState: Bundle?) {
+        val audioUriString = intent.getStringExtra("audioUri")
+        val audioUri = audioUriString?.toUri()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-
-        val audioUri = intent.getStringExtra("audioUri")?.let { Uri.parse(it) }
-
         setContent {
             PostWhisprBody(audioUri)
         }
     }
 }
-
 @Composable
 fun PostWhisprBody(audioUri: Uri?) {
     var whisprCaption by remember { mutableStateOf("") }
@@ -157,7 +157,7 @@ fun PostWhisprBody(audioUri: Uri?) {
                             color = Color.Red,
                             modifier = Modifier.clickable {
                                 activity?.let {
-                                    it.finish() // Finish PostSnapshotActivity
+                                    it.finish() // Finish PostWhisprActivity
                                     // Start NavigationActivity
                                     val intent = Intent(context, NavigationActivity::class.java)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -203,16 +203,14 @@ fun PostWhisprBody(audioUri: Uri?) {
                 ){
                    // HERE HERE HERE THE WAVE FORM THINGY
                     // Waveform visualizer
+                        WaveformSeekBarView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp),
+                            context = context,
+                            audioUriString = audioPathString
+                        )
 
-
-
-                    WaveformSeekBarView(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp),
-                        context = context,
-                        audioUriString = audioPathString
-                    )
 
                     Spacer(Modifier.height(16.dp))
 
@@ -372,37 +370,37 @@ fun PostWhisprBody(audioUri: Uri?) {
 
                     Button(
                         onClick = {
-//                            loading = true
-//                            userRepo.getCurrentUserInfo { success, msg, user ->
-//                                if (success && user != null) {
-//                                    val postModel = PostModel(
-//                                        authorID = user.userID,
-//                                        author = user.username,
-//                                        type = PostType.WHISPR,
-//                                        caption = whisprCaption,
-//                                        likes = 0,
-//                                        nsfw = nsfw,
-//                                        likedBy = emptyList(),
-//                                        isPrivate = isPrivate,
-////                                        mediaRes = photoUri?.toString()
-//                                    )
-//
-//                                    postRepo.createPost(postModel) { postSuccess, postMessage ->
-//                                        if (postSuccess) {
-//                                            val intent = Intent(context, NavigationActivity::class.java)
-//                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//                                            context.startActivity(intent)
-//                                            (context as? Activity)?.finish()
-//                                            loading = false
-//                                            Toast.makeText(context, "Whispr Posted!", Toast.LENGTH_SHORT).show()
-//                                        } else {
-//                                            Toast.makeText(context, postMessage, Toast.LENGTH_SHORT).show()
-//                                        }
-//                                    }
-//                                } else {
-//                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-//                                }
-//                            }
+                            loading = true
+                            userRepo.getCurrentUserInfo { success, msg, user ->
+                                if (success && user != null) {
+                                    val postModel = PostModel(
+                                        authorID = user.userID,
+                                        author = user.username,
+                                        type = PostType.WHISPR,
+                                        caption = whisprCaption,
+                                        likes = 0,
+                                        nsfw = nsfw,
+                                        likedBy = emptyList(),
+                                        isPrivate = isPrivate,
+                                        mediaRes = audioUri?.toString()
+                                    )
+
+                                    postRepo.createPost(postModel) { postSuccess, postMessage ->
+                                        if (postSuccess) {
+                                            val intent = Intent(context, NavigationActivity::class.java)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            context.startActivity(intent)
+                                            (context as? Activity)?.finish()
+                                            loading = false
+                                            Toast.makeText(context, "Whispr Posted!", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, postMessage, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                } else {
+                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         },
 
                         modifier = Modifier

@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import com.masoudss.lib.WaveformSeekBar
 import com.masoudss.lib.utils.WaveGravity
-import linc.com.amplituda.Amplituda
+
 
 @Composable
 fun WaveformSeekBarView(
