@@ -13,7 +13,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
@@ -23,9 +22,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.DisposableEffect
@@ -47,6 +43,7 @@ import androidx.compose.ui.window.Dialog
 import com.softwarica.sondr.R
 import com.softwarica.sondr.model.PostModel
 import com.softwarica.sondr.model.PostType
+import com.softwarica.sondr.utils.formatAudioDuration
 import com.softwarica.sondr.utils.getTimeAgo
 
 
@@ -71,7 +68,7 @@ fun PostItem(
 
     val context = LocalContext.current
     var isPlaying by remember { mutableStateOf(false) }
-    var duration by remember { mutableStateOf(0) }
+    var formattedDuration by remember { mutableStateOf("0:00") }
 
     // new
     LaunchedEffect(showHeart) {
@@ -212,9 +209,10 @@ fun PostItem(
                         mediaPlayer.reset()
                         mediaPlayer.setDataSource(post.mediaRes)
                         mediaPlayer.prepareAsync()
-                        mediaPlayer.setOnPreparedListener {
+                        mediaPlayer.setOnPreparedListener { mp ->
                             isPrepared = true
-                            duration = it.duration / 1000 // in seconds
+                            val durationInMillis = mp.duration.toLong()
+                            formattedDuration = formatAudioDuration(durationInMillis)
                         }
                         mediaPlayer.setOnCompletionListener {
                             isPlaying = false
@@ -233,10 +231,15 @@ fun PostItem(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp),
+                        .padding(horizontal = 0.dp)
+                        .background(
+                            Color(0XFF1C1E23),
+                            shape = RoundedCornerShape(20.dp)
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
+                    Spacer(Modifier.width(12.dp))
                     IconButton(
                         onClick = {
                             if (isPrepared) {
@@ -250,30 +253,36 @@ fun PostItem(
                             }
                         },
                         modifier = Modifier
-                            .size(36.dp)
-                            .background(Color(0xFF98C6E6), shape = CircleShape)
+                            .size(48.dp)
                     ) {
                        Icon(
                            painter = painterResource(if (isPlaying) R.drawable.baseline_pause_circle_24 else R.drawable.baseline_play_circle_24),
                            contentDescription = "Play/Pause",
-                           tint = Color.White
+                           tint = Color(0xFF98C6E6),
+                           modifier = Modifier
+                               .size(48.dp)
                        )
                     }
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
                     WaveformSeekBarView(
                         modifier = Modifier
                             .weight(1f)
-                            .height(50.dp)
+                            .height(100.dp)
+
                     )
 
-                    Spacer(modifier = Modifier.width(12.dp))
-
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = formatDuration(duration),
-                        color = Color.Gray
+                        text = formattedDuration,
+                        color = Color.Gray,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
                     )
+
+                    Spacer(Modifier.width(12.dp))
+
                 }
             }
 

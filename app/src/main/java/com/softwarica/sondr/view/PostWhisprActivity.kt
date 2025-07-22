@@ -1,6 +1,5 @@
 package com.softwarica.sondr.view
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -63,6 +62,7 @@ import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.components.WaveformSeekBarView
 import com.softwarica.sondr.ui.theme.InterFont
+import com.softwarica.sondr.utils.formatAudioDuration
 
 
 class PostWhisprActivity : ComponentActivity() {
@@ -242,7 +242,7 @@ fun PostWhisprBody(audioUri: Uri?) {
                         WaveformSeekBarView(
                             modifier = Modifier
                                 .height(90.dp)
-                                .padding(horizontal = 10.dp),
+                                .padding(horizontal = 10.dp)
                         )
                     }
 
@@ -452,13 +452,7 @@ fun PostWhisprBody(audioUri: Uri?) {
 }
 
 
-@SuppressLint("DefaultLocale")
-fun formatAudioDuration(durationInMillis: Long): String {
-    val totalSeconds = durationInMillis / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return String.format("%d:%02d", minutes, seconds)
-}
+
 
 @Preview(showBackground = true)
 @Composable

@@ -1,18 +1,17 @@
 package com.softwarica.sondr.utils
 
 
+import android.annotation.SuppressLint
 import com.google.firebase.database.FirebaseDatabase
 import kotlin.random.Random
 import java.util.concurrent.TimeUnit
 import java.text.SimpleDateFormat
 import java.util.*
-import android.graphics.Bitmap
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
-import java.util.*
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 import androidx.core.graphics.toColorInt
@@ -95,4 +94,11 @@ fun generateQrBitmap(data: String, size: Int = 512): ImageBitmap {
     }
 
     return bmp.asImageBitmap()
+}
+@SuppressLint("DefaultLocale")
+fun formatAudioDuration(durationInMillis: Long): String {
+    val totalSeconds = durationInMillis / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format("%d:%02d", minutes, seconds)
 }
