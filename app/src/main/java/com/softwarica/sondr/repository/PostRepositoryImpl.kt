@@ -182,7 +182,7 @@ class PostRepositoryImpl(
                 currentData: DataSnapshot?
             ) {
                 if (error != null) {
-                    callback(false, error.message ?: "Unknown error")
+                    callback(false, error.message)
                 } else {
                     callback(true, "Post liked")
                 }

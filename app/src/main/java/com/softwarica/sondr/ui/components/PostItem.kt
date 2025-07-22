@@ -265,9 +265,7 @@ fun PostItem(
                     WaveformSeekBarView(
                         modifier = Modifier
                             .weight(1f)
-                            .height(50.dp),
-                        context = context,
-                        audioUriString = post.mediaRes.toString()
+                            .height(50.dp)
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))

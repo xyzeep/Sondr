@@ -62,7 +62,6 @@ import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.components.WaveformSeekBarView
-import com.softwarica.sondr.ui.components.WaveformSeekBarView
 import com.softwarica.sondr.ui.theme.InterFont
 
 
@@ -84,7 +83,7 @@ fun PostWhisprBody(audioUri: Uri?) {
     var isPrivate by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(false) }
-
+    var audioDuration by remember { mutableStateOf(0L) }
 
     val context = LocalContext.current
     val activity = context as? Activity
@@ -107,9 +106,13 @@ fun PostWhisprBody(audioUri: Uri?) {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
+
             }
+
         }
     }
+
+    audioDuration = mediaPlayer.duration.toLong()
 
     DisposableEffect(mediaPlayer) {
         val listener = MediaPlayer.OnCompletionListener {
@@ -201,25 +204,12 @@ fun PostWhisprBody(audioUri: Uri?) {
                         .padding(horizontal = 16.dp)
 
                 ){
-                   // HERE HERE HERE THE WAVE FORM THINGY
-                    // Waveform visualizer
-                        WaveformSeekBarView(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(100.dp),
-                            context = context,
-                            audioUriString = audioPathString
-                        )
-
-
-                    Spacer(Modifier.height(16.dp))
-
                     Icon(
                         painter = painterResource(if (isPlaying) R.drawable.baseline_pause_circle_24 else R.drawable.baseline_play_circle_24),
 
                         contentDescription = if (isPlaying) "Pause" else "Play",
-                        tint = Color.White,
-                        modifier = Modifier.size(100.dp).clickable {
+                        tint = Color(0XFF98CAE6),
+                        modifier = Modifier.size(80.dp).clickable {
                             if (isPlaying) {
                                 mediaPlayer.pause()
                                 isPlaying = false
@@ -230,7 +220,35 @@ fun PostWhisprBody(audioUri: Uri?) {
                         }
                     )
 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .padding(horizontal = 40.dp)
+                    ) {
+
+                        Text(
+                            text = formatAudioDuration(audioDuration),
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontFamily = InterFont,
+                            fontWeight = FontWeight.Bold
+                        )
+
+
+                   // HERE HERE HERE THE WAVE FORM THINGY
+                    // Waveform visualizer
+                        WaveformSeekBarView(
+                            modifier = Modifier
+                                .height(90.dp)
+                                .padding(horizontal = 10.dp),
+                        )
+                    }
+
+
                     Spacer(Modifier.height(16.dp))
+
 
                     OutlinedTextField(
                         value = whisprCaption,
@@ -335,7 +353,6 @@ fun PostWhisprBody(audioUri: Uri?) {
 
                     }
 
-
                     HorizontalDivider(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -434,6 +451,14 @@ fun PostWhisprBody(audioUri: Uri?) {
     Loading(isLoading = loading, message = "Posting your Whispr...")
 }
 
+
+@SuppressLint("DefaultLocale")
+fun formatAudioDuration(durationInMillis: Long): String {
+    val totalSeconds = durationInMillis / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format("%d:%02d", minutes, seconds)
+}
 
 @Preview(showBackground = true)
 @Composable
