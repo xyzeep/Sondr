@@ -1,0 +1,78 @@
+package com.softwarica.sondr.ui.components
+
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.viewinterop.AndroidView
+import com.masoudss.lib.WaveformSeekBar
+import com.masoudss.lib.utils.WaveGravity
+import androidx.compose.runtime.Composable
+import kotlin.random.Random
+
+val debugWaveform = intArrayOf(
+    5, 10, 8, 12, 6, 15, 9, 11, 14, 7,
+    13, 6, 9, 12, 8, 10, 11, 7, 13, 6,
+    14, 9, 10, 12, 8, 11, 7, 13, 6, 9,
+    10, 12, 8, 11, 6, 13, 7, 10, 12, 9,
+    11, 8, 10, 13, 6, 9, 12, 7, 10, 11
+)
+
+@Composable
+fun WaveformSeekBarView(
+    modifier: Modifier = Modifier,
+) {
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx ->
+            WaveformSeekBar(ctx).apply {
+
+                isEnabled = false
+                isClickable = false
+                isFocusable = false
+
+                waveWidth = 12f
+                waveGap = 10f
+                waveMinHeight = 1f
+                waveCornerRadius = 16f
+                waveGravity = WaveGravity.CENTER
+                wavePaddingTop = 10
+                wavePaddingBottom = 100
+                wavePaddingLeft = 16
+                visibleProgress = 120f
+                progress = 55f
+                maxProgress = 100f
+                waveBackgroundColor = Color(0xFF476A95).copy(alpha = 1f).toArgb()
+//                waveProgressColor = Color(0xFF98C6E6).toArgb()
+                waveProgressColor = Color(0xFF476A95).copy(alpha = 1f).toArgb()
+
+                markerWidth = 10f
+                markerColor = Color.Red.toArgb()
+                markerTextSize = 12f
+                maxProgress = 100f
+                markerTextColor = Color.White.toArgb()
+                markerTextPadding = 4f
+            }
+        },
+
+        update = { waveformSeekBar ->
+            val fakeWaveform = generateRandomWaveform(50, 2, 8)
+            waveformSeekBar.setSampleFrom(fakeWaveform)
+        }
+    )
+}
+
+fun generateRandomWaveform(size: Int, minHeight: Int = 2, maxHeight: Int = 1): IntArray {
+    val samples = IntArray(size)
+    var currentHeight = Random.nextInt(minHeight, maxHeight)
+
+    for (i in 0 until size) {
+
+        // change the height slightly compared to the previous one
+        val variation = Random.nextInt(-15, 16)  // Small change
+        currentHeight = (currentHeight + variation).coerceIn(minHeight, maxHeight)
+        samples[i] = currentHeight
+    }
+
+    return samples
+}
+

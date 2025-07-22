@@ -2,6 +2,7 @@ package com.softwarica.sondr.utils
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
@@ -40,19 +41,26 @@ class CloudinaryService internal constructor(context: Context) {
         val deferred = CompletableDeferred<String>()
 
         MediaManager.get().upload(uri)
+            .option("resource_type", "video")
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String) {}
                 override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                     val url = resultData["secure_url"] as? String
                     if (url != null) {
+                        // log
+                        Log.d("CloudinaryService", "Upload success, URL: $url")  // <-- Add this log
                         if (cont.isActive) cont.resume(url)
                     } else {
+                        // log
+                        Log.e("CloudinaryService", "Upload success but no URL returned") // <-- Add this log
                         if (cont.isActive) cont.resumeWithException(Exception("No URL returned"))
                     }
                 }
 
                 override fun onError(requestId: String, error: ErrorInfo) {
+                    // log
+                    Log.e("CloudinaryService", "Upload error: ${error.description}")  // <-- Add this log
                     if (cont.isActive) cont.resumeWithException(Exception(error.description))
                 }
 

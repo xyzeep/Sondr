@@ -2,6 +2,7 @@ package com.softwarica.sondr.repository
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.google.firebase.database.FirebaseDatabase
 import com.softwarica.sondr.model.PostModel
 import kotlinx.coroutines.CoroutineScope
@@ -32,8 +33,13 @@ class PostRepositoryImpl(
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val uploadedUrl = mediaUriString?.let { uriString ->
+                    // log
+                    Log.d("PostRepository", "Uploading media: $uriString")
                     withContext(Dispatchers.IO) {
-                        uploadMedia(uriString.toUri())
+                        uploadMedia(uriString.toUri()).also {
+                            // log
+                            Log.d("PostRepository", "Upload result URL: $it")
+                        }
                     }
                 }
 
@@ -176,7 +182,7 @@ class PostRepositoryImpl(
                 currentData: DataSnapshot?
             ) {
                 if (error != null) {
-                    callback(false, error.message ?: "Unknown error")
+                    callback(false, error.message)
                 } else {
                     callback(true, "Post liked")
                 }

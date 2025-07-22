@@ -1,4 +1,5 @@
 package com.softwarica.sondr.ui.components
+import android.media.MediaPlayer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,7 +13,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
@@ -20,9 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,6 +43,7 @@ import androidx.compose.ui.window.Dialog
 import com.softwarica.sondr.R
 import com.softwarica.sondr.model.PostModel
 import com.softwarica.sondr.model.PostType
+import com.softwarica.sondr.utils.formatAudioDuration
 import com.softwarica.sondr.utils.getTimeAgo
 
 
@@ -51,6 +55,7 @@ fun PostItem(
     onRequestFullscreen: (String) -> Unit,
     onLikeToggle: (PostModel, Boolean) -> Unit,
     onDownload: (PostModel) -> Unit,
+    onDeletePost: (String) -> Unit
     ){
 
     val isNSFW = post.nsfw
@@ -61,6 +66,10 @@ fun PostItem(
     var optionsExpanded by remember { mutableStateOf(false) }
     // new
     var showHeart by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    var isPlaying by remember { mutableStateOf(false) }
+    var formattedDuration by remember { mutableStateOf("0:00") }
 
     // new
     LaunchedEffect(showHeart) {
@@ -116,11 +125,20 @@ fun PostItem(
                                     }
                                 )
                                 if (post.authorID == currentUserId) {
+
+                                    HorizontalDivider(
+                                        modifier = Modifier
+                                            .padding(vertical = 4.dp),
+                                        thickness = 1.dp,
+                                        color = Color.White.copy(alpha = 0.2f)
+                                    )
+
+
                                     DropdownMenuItem(
                                         text = { Text("Delete",  color = Color.Red) },
                                         onClick = {
                                             optionsExpanded = false
-                                            // TODO: handle delete
+                                            onDeletePost(post.postID)
                                         }
                                     )
                                 }
@@ -190,16 +208,96 @@ fun PostItem(
                 }
 
             }
+
+            // WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR
             PostType.WHISPR -> {
-                Image(
-                    painter = rememberAsyncImagePainter(model = post.mediaRes),
-                    contentDescription = "WHISPR",
+                val mediaPlayer = remember { MediaPlayer() }
+                var isPrepared by remember { mutableStateOf(false) }
+
+                LaunchedEffect(post.mediaRes) {
+                    try {
+                        mediaPlayer.reset()
+                        mediaPlayer.setDataSource(post.mediaRes)
+                        mediaPlayer.prepareAsync()
+                        mediaPlayer.setOnPreparedListener { mp ->
+                            isPrepared = true
+                            val durationInMillis = mp.duration.toLong()
+                            formattedDuration = formatAudioDuration(durationInMillis)
+                        }
+                        mediaPlayer.setOnCompletionListener {
+                            isPlaying = false
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+                DisposableEffect(Unit) {
+                    onDispose {
+                        mediaPlayer.release()
+                    }
+                }
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                )
+                        .padding(horizontal = 0.dp)
+                        .background(
+                            Color(0XFF1C1E23),
+                            shape = RoundedCornerShape(20.dp)
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Spacer(Modifier.width(12.dp))
+                    IconButton(
+                        onClick = {
+                            if (isPrepared) {
+                                if (mediaPlayer.isPlaying) {
+                                    mediaPlayer.pause()
+                                    isPlaying = false
+                                } else {
+                                    mediaPlayer.start()
+                                    isPlaying = true
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .size(48.dp)
+                    ) {
+                       Icon(
+                           painter = painterResource(if (isPlaying) R.drawable.baseline_pause_circle_24 else R.drawable.baseline_play_circle_24),
+                           contentDescription = "Play/Pause",
+                           tint = Color(0xFF98C6E6),
+                           modifier = Modifier
+                               .size(48.dp)
+                       )
+                    }
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    WaveformSeekBarView(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(100.dp)
+
+                    )
+
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = formattedDuration,
+                        color = Color.Gray,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(Modifier.width(12.dp))
+
+                }
             }
+
+
+            // WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR
         }
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -287,4 +385,10 @@ private fun DoubleTapHeartOverlay(visible: Boolean) {
             )
         }
     }
+}
+
+private fun formatDuration(seconds: Int): String {
+    val minutesPart = seconds / 60
+    val secondsPart = seconds % 60
+    return "%d:%02d".format(minutesPart, secondsPart)
 }

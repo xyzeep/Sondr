@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.Firebase
 import com.softwarica.sondr.R
+import com.softwarica.sondr.components.Loading
 import com.softwarica.sondr.ui.components.PostItem
 import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.repository.PostRepositoryImpl
@@ -53,6 +54,7 @@ fun HomeFeedPage() {
     var posts by remember { mutableStateOf<List<PostModel>>(emptyList()) }
 
 
+    var refreshLoading by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val postRepository: PostRepository = remember { PostRepositoryImpl(context) }
@@ -68,6 +70,22 @@ fun HomeFeedPage() {
                 Log.e("Firebase", "Error fetching posts: $message")
             }
         }
+    }
+
+    fun refreshPosts() {
+        refreshLoading = true
+        postRepository.getAllPosts { success, message, result ->
+            if (success) {
+                posts = result.reversed()
+            } else {
+                Log.e("Firebase", "Error fetching posts: $message")
+            }
+            refreshLoading = false
+        }
+
+    }
+    LaunchedEffect(Unit) {
+        refreshPosts()
     }
     LaunchedEffect(Unit) {
         userRepository.getCurrentUserInfo { success, message, user ->
@@ -91,9 +109,16 @@ fun HomeFeedPage() {
             selectedFilter = selectedFilter,
             onFilterChange = { selectedFilter = it },
             currentUserId = currentUserId,
-            postRepository = postRepository
+            postRepository = postRepository,
+            onRefreshPosts = { refreshPosts() },
         )
+
+        Loading(isLoading = refreshLoading, message = "Refreshing posts...")
     }
+
+    Loading(isLoading = refreshLoading, message = "")
+
+
 }
 
 // fun to load feed
@@ -103,12 +128,16 @@ fun Feed(
     selectedFilter: String,
     onFilterChange: (String) -> Unit,
     currentUserId: String?,
-    postRepository: PostRepository
+    postRepository: PostRepository,
+    onRefreshPosts: () -> Unit,
 ) {
     val context = LocalContext.current
     val filterOptions = listOf("All", "Whisprs", "Snapshots")
     var fullscreenImageUri by remember { mutableStateOf<String?>(null) }
     val likedPosts = remember { mutableStateOf(setOf<String>()) }
+
+    var deleteLoading by remember { mutableStateOf(false) }
+
     val filteredPosts = when (selectedFilter) {
         "Whisprs" -> posts.filter { it.type == PostType.WHISPR }
         "Snapshots" -> posts.filter { it.type == PostType.SNAPSHOT }
@@ -172,11 +201,26 @@ fun Feed(
                     currentUserId = currentUserId.toString(),
                     onDownload = { post ->
                         downloadImage(context, post.mediaRes.toString(), "sondr_${post.postID}.jpg")
+                    },
+                    onDeletePost = { postId ->
+                        deleteLoading = true
+                        postRepository.deletePost(postId) { success, message ->
+                            if (success) {
+                                Log.d("Delete", "Deleted: $postId")
+                                onRefreshPosts()
+                                // Optional: refresh list or show snackbar
+                            } else {
+                                Log.e("Delete", "Failed: $message")
+                            }
+                            deleteLoading = false  // <-- only set false after delete completes
+                        }
                     }
+
                 )
             }
 
         }
+        Loading(isLoading = deleteLoading, message = "Deleting post...")
 
         // Fullscreen overlay
         if (fullscreenImageUri != null) {
@@ -196,6 +240,8 @@ fun Feed(
             }
         }
     }
+
+
 }
 
 

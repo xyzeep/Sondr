@@ -1,13 +1,11 @@
 package com.softwarica.sondr.view
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Spacer
-
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -56,27 +52,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.R
 import android.media.MediaPlayer
+import android.widget.Toast
 import androidx.compose.runtime.DisposableEffect
+import androidx.core.net.toUri
 import com.softwarica.sondr.components.Loading
+import com.softwarica.sondr.model.PostModel
+import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
+import com.softwarica.sondr.ui.components.WaveformSeekBarView
 import com.softwarica.sondr.ui.theme.InterFont
+import com.softwarica.sondr.utils.formatAudioDuration
+
 
 class PostWhisprActivity : ComponentActivity() {
-    @SuppressLint("UseKtx")
     override fun onCreate(savedInstanceState: Bundle?) {
+        val audioUriString = intent.getStringExtra("audioUri")
+        val audioUri = audioUriString?.toUri()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-
-        val audioUri = intent.getStringExtra("audioUri")?.let { Uri.parse(it) }
-
         setContent {
             PostWhisprBody(audioUri)
         }
     }
 }
-
 @Composable
 fun PostWhisprBody(audioUri: Uri?) {
     var whisprCaption by remember { mutableStateOf("") }
@@ -84,13 +83,18 @@ fun PostWhisprBody(audioUri: Uri?) {
     var isPrivate by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(false) }
-
+    var audioDuration by remember { mutableStateOf(0L) }
 
     val context = LocalContext.current
     val activity = context as? Activity
 
+
+    val audioPathString = audioUri?.toString()
+
     val postRepo = PostRepositoryImpl(context)
     val userRepo = UserRepositoryImpl(context)
+
+
 
 
     val mediaPlayer = remember(audioUri) {
@@ -102,9 +106,13 @@ fun PostWhisprBody(audioUri: Uri?) {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
+
             }
+
         }
     }
+
+    audioDuration = mediaPlayer.duration.toLong()
 
     DisposableEffect(mediaPlayer) {
         val listener = MediaPlayer.OnCompletionListener {
@@ -152,7 +160,7 @@ fun PostWhisprBody(audioUri: Uri?) {
                             color = Color.Red,
                             modifier = Modifier.clickable {
                                 activity?.let {
-                                    it.finish() // Finish PostSnapshotActivity
+                                    it.finish() // Finish PostWhisprActivity
                                     // Start NavigationActivity
                                     val intent = Intent(context, NavigationActivity::class.java)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -196,13 +204,12 @@ fun PostWhisprBody(audioUri: Uri?) {
                         .padding(horizontal = 16.dp)
 
                 ){
-                   // HERE HERE HERE THE WAVE FORM THINGY
                     Icon(
                         painter = painterResource(if (isPlaying) R.drawable.baseline_pause_circle_24 else R.drawable.baseline_play_circle_24),
 
                         contentDescription = if (isPlaying) "Pause" else "Play",
-                        tint = Color.White,
-                        modifier = Modifier.size(100.dp).clickable {
+                        tint = Color(0XFF98CAE6),
+                        modifier = Modifier.size(80.dp).clickable {
                             if (isPlaying) {
                                 mediaPlayer.pause()
                                 isPlaying = false
@@ -213,7 +220,35 @@ fun PostWhisprBody(audioUri: Uri?) {
                         }
                     )
 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .padding(horizontal = 40.dp)
+                    ) {
+
+                        Text(
+                            text = formatAudioDuration(audioDuration),
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontFamily = InterFont,
+                            fontWeight = FontWeight.Bold
+                        )
+
+
+                   // HERE HERE HERE THE WAVE FORM THINGY
+                    // Waveform visualizer
+                        WaveformSeekBarView(
+                            modifier = Modifier
+                                .height(90.dp)
+                                .padding(horizontal = 10.dp)
+                        )
+                    }
+
+
                     Spacer(Modifier.height(16.dp))
+
 
                     OutlinedTextField(
                         value = whisprCaption,
@@ -318,7 +353,6 @@ fun PostWhisprBody(audioUri: Uri?) {
 
                     }
 
-
                     HorizontalDivider(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -353,37 +387,37 @@ fun PostWhisprBody(audioUri: Uri?) {
 
                     Button(
                         onClick = {
-//                            loading = true
-//                            userRepo.getCurrentUserInfo { success, msg, user ->
-//                                if (success && user != null) {
-//                                    val postModel = PostModel(
-//                                        authorID = user.userID,
-//                                        author = user.username,
-//                                        type = PostType.WHISPR,
-//                                        caption = whisprCaption,
-//                                        likes = 0,
-//                                        nsfw = nsfw,
-//                                        likedBy = emptyList(),
-//                                        isPrivate = isPrivate,
-////                                        mediaRes = photoUri?.toString()
-//                                    )
-//
-//                                    postRepo.createPost(postModel) { postSuccess, postMessage ->
-//                                        if (postSuccess) {
-//                                            val intent = Intent(context, NavigationActivity::class.java)
-//                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//                                            context.startActivity(intent)
-//                                            (context as? Activity)?.finish()
-//                                            loading = false
-//                                            Toast.makeText(context, "Whispr Posted!", Toast.LENGTH_SHORT).show()
-//                                        } else {
-//                                            Toast.makeText(context, postMessage, Toast.LENGTH_SHORT).show()
-//                                        }
-//                                    }
-//                                } else {
-//                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-//                                }
-//                            }
+                            loading = true
+                            userRepo.getCurrentUserInfo { success, msg, user ->
+                                if (success && user != null) {
+                                    val postModel = PostModel(
+                                        authorID = user.userID,
+                                        author = user.username,
+                                        type = PostType.WHISPR,
+                                        caption = whisprCaption,
+                                        likes = 0,
+                                        nsfw = nsfw,
+                                        likedBy = emptyList(),
+                                        isPrivate = isPrivate,
+                                        mediaRes = audioUri?.toString()
+                                    )
+
+                                    postRepo.createPost(postModel) { postSuccess, postMessage ->
+                                        if (postSuccess) {
+                                            val intent = Intent(context, NavigationActivity::class.java)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            context.startActivity(intent)
+                                            (context as? Activity)?.finish()
+                                            loading = false
+                                            Toast.makeText(context, "Whispr Posted!", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, postMessage, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                } else {
+                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         },
 
                         modifier = Modifier
@@ -416,6 +450,8 @@ fun PostWhisprBody(audioUri: Uri?) {
     }
     Loading(isLoading = loading, message = "Posting your Whispr...")
 }
+
+
 
 
 @Preview(showBackground = true)
