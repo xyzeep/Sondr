@@ -49,6 +49,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricManager
 import androidx.compose.runtime.LaunchedEffect
 import androidx.fragment.app.FragmentActivity
+import androidx.core.net.toUri
 
 
 class SettingsActivity : FragmentActivity() {
@@ -104,6 +105,7 @@ fun SettingsBody() {
                 ) {
                     Text(
                         text = "Settings",
+
                         modifier = Modifier.align(Alignment.Center),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -211,7 +213,21 @@ fun SettingsBody() {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { /* handle click */ }
+                        .clickable {
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = "mailto:".toUri() // only email apps should handle this
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf("support@sondrapp.com"))
+                            putExtra(Intent.EXTRA_SUBJECT, "Help & Support Request")
+                            putExtra(Intent.EXTRA_TEXT, "Hi Sondr Team,\n\nI need help with...")
+                        }
+
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "No email app found", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
                         .padding(vertical = 10.dp, horizontal = 16.dp)
                 ) {
                     Icon(
