@@ -2,6 +2,7 @@ package com.softwarica.sondr.view
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -280,7 +281,9 @@ fun MoreOptionsMenu() {
                         Text("Settings", fontFamily = InterFont, color = Color.White)
                     },
 
-                    onClick = { expanded = false },
+                    onClick = { expanded = false
+                                context.startActivity(Intent(context, SettingsActivity::class.java))
+                              },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(R.drawable.baseline_settings_24),
@@ -293,7 +296,9 @@ fun MoreOptionsMenu() {
                     text = {
                         Text("About Sondr.", fontFamily = InterFont, color = Color.White)
                     },
-                    onClick = { expanded = false },
+                    onClick = {
+                        expanded = false
+                        context.startActivity(Intent(context, AboutSondrActivity::class.java))},
                     leadingIcon = {
                         Icon(
                             painter = painterResource(R.drawable.baseline_info_24),
@@ -302,19 +307,7 @@ fun MoreOptionsMenu() {
                         )
                     }
                 )
-                DropdownMenuItem(
-                    text = {
-                        Text("Help & Support", fontFamily = InterFont, color = Color.White)
-                    },
-                    onClick = { expanded = false },
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(R.drawable.baseline_help_24),
-                            contentDescription = "Help Icon",
-                            tint = Color.White
-                        )
-                    }
-                )
+
                 DropdownMenuItem(
                     text = {
                         Text("Logout", fontFamily = InterFont, color = Color.Red)

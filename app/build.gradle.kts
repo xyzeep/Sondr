@@ -67,6 +67,7 @@ dependencies {
     implementation ("com.google.zxing:core:3.5.3")
     implementation ("com.github.massoudss:waveformSeekBar:5.0.2")
     implementation ("com.github.lincollincol:amplituda:2.2.2") // audio sample processing
+    implementation ("androidx.biometric:biometric:1.1.0")
 
 
 
