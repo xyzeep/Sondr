@@ -2,6 +2,7 @@ package com.softwarica.sondr.view
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -295,7 +296,9 @@ fun MoreOptionsMenu() {
                     text = {
                         Text("About Sondr.", fontFamily = InterFont, color = Color.White)
                     },
-                    onClick = { expanded = false },
+                    onClick = {
+                        expanded = false
+                        context.startActivity(Intent(context, AboutSondrActivity::class.java))},
                     leadingIcon = {
                         Icon(
                             painter = painterResource(R.drawable.baseline_info_24),

@@ -1,5 +1,6 @@
 package com.softwarica.sondr.view
 
+import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,21 +8,27 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,36 +49,88 @@ class AboutSondrActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun AboutSondrActivityBody() {
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
     Scaffold { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFF121212))
-                .padding(innerPadding)
-                .padding(24.dp),
+                .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+
+                ) {
+                    Text(
+                        text = "About Sondr",
+
+                        modifier = Modifier.align(Alignment.Center),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = InterFont,
+                        color = Color.White
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Back",
+                            fontSize = 20.sp,
+                            fontFamily = InterFont,
+                            color = Color(0XFF0088FF),
+                            modifier = Modifier.clickable {
+                                activity?.finish()
+                            }
+                        )
+
+                    }
 
 
-            item{Image(
-                painter = painterResource(R.drawable.sondr_logo),
-                contentDescription = null,
-                modifier = Modifier
-                    .height(120.dp)
-                    .width(120.dp)
-                    .padding(top = 20.dp)
-            )}
+                }
+            }
+            item {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    thickness = 1.dp,
+                    color = Color.White.copy(alpha = 0.3f)
+                )
+            }
+
+
+            item {
+                Image(
+                    painter = painterResource(R.drawable.sondr_logo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(120.dp)
+                        .width(120.dp)
+                        .padding(top = 20.dp)
+                )
+            }
 
 
             // Sondr text branding
-            item { Text(
-                text = "Sondr.",
-                fontSize = 42.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = LoraFont,
-                color = Color.White
-            )}
+            item {
+                Text(
+                    text = "Sondr.",
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = LoraFont,
+                    color = Color.White
+                )
+            }
 
 
             // slogan
@@ -87,9 +146,15 @@ fun AboutSondrActivityBody() {
                 )
                 Spacer(Modifier.height(15.dp))
             }
-            item { Spacer(modifier = Modifier.height(24.dp)) }
 
-            item {
+item {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF121212))
+                    .padding(16.dp),  // or whatever padding you want here
+                horizontalAlignment = Alignment.Start
+            ) {
                 Text(
                     text = "What is Sondr?",
                     fontSize = 20.sp,
@@ -108,28 +173,25 @@ fun AboutSondrActivityBody() {
                     color = Color.White,
                     fontFamily = InterFont
                 )
-            }
 
-            item { Spacer(modifier = Modifier.height(24.dp)) }
-
-            item {
                 HorizontalDivider(thickness = 2.dp, color = Color.Gray.copy(alpha = 0.3f))
-            }
 
-            item { Spacer(modifier = Modifier.height(24.dp)) }
+                Spacer(modifier = Modifier.height(24.dp))
 
-            item {
-                Text(
-                    text = "Built with love by:",
-                    fontSize = 24.sp,
-                    color = Color.White,
-                    fontFamily = LoraFont
-                )
-            }
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Built with love by:",
+                        fontSize = 24.sp,
+                        color = Color.White,
+                        fontFamily = InterFont
+                    )
+                }
 
-            item { Spacer(modifier = Modifier.height(8.dp)) }
+                Spacer(modifier = Modifier.height(8.dp))
 
-            item {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -138,7 +200,11 @@ fun AboutSondrActivityBody() {
                 ) {
                     val devs = listOf(
                         Triple("Pawan Acharya", "Scrum Master & Developer", R.drawable.pawan),
-                        Triple("Prabin Babu Kattel", "Backend Developer & Database", R.drawable.prabin),
+                        Triple(
+                            "Prabin Babu Kattel",
+                            "Backend Developer & Database",
+                            R.drawable.prabin
+                        ),
                         Triple("Radu Bhattarai", "Frontend Developer", R.drawable.roman),
                         Triple("Nishan BK", "Testing & QA", R.drawable.nishan)
                     )
@@ -159,10 +225,10 @@ fun AboutSondrActivityBody() {
                             Column {
                                 Text(
                                     text = name,
-                                    fontSize = 18.sp,
+                                    fontSize = 20.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
-                                    fontFamily = LoraFont
+                                    fontFamily = InterFont
                                 )
                                 Text(
                                     text = role,
@@ -174,9 +240,27 @@ fun AboutSondrActivityBody() {
                         }
                     }
                 }
-            }
 
-            item { Spacer(modifier = Modifier.height(36.dp)) }
+                Spacer(Modifier.height(24.dp))
+
+                Text(
+                    text = "Happy Sondring! 🩵",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    fontFamily = InterFont,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        brush = Brush.linearGradient(
+                            colors = listOf(Color(0xFF00B4D8), Color(0xFFFFFFFF)) // customize as needed
+                        )
+                    )
+                )
+
+                Spacer(Modifier.height(32.dp))
+            }
+        }
         }
     }
 }
