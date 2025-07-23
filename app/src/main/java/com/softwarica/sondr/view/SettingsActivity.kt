@@ -39,14 +39,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.softwarica.sondr.R
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.theme.InterFont
 import com.softwarica.sondr.utils.getLoggedInUsername
 import androidx.core.content.edit
+import androidx.biometric.BiometricPrompt
+import androidx.biometric.BiometricManager
+import androidx.compose.runtime.LaunchedEffect
+import androidx.fragment.app.FragmentActivity
 
 
-class SettingsActivity : ComponentActivity() {
+class SettingsActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -67,8 +72,22 @@ fun SettingsBody() {
     var showDeleteAccDialog by remember { mutableStateOf(false) }
     var sondrCodeInput by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    val executor = ContextCompat.getMainExecutor(context)
 
 
+// Make sondrCode a remembered mutableState so it is accessible everywhere inside this composable
+    var sondrCode by remember { mutableStateOf("") }
+
+// Load the current user info once, update sondrCode when data arrives
+    LaunchedEffect(Unit) {
+        userRepo.getCurrentUserInfo { success, _, userModel ->
+            if (success && userModel != null) {
+                sondrCode = userModel.sondrCode
+            } else {
+                sondrCode = ""
+            }
+        }
+    }
     Scaffold { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -131,7 +150,41 @@ fun SettingsBody() {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { /* handle click */ }
+                        .clickable {
+                            val biometricPrompt = BiometricPrompt(
+                                activity as FragmentActivity,
+                                executor,
+                                object : BiometricPrompt.AuthenticationCallback() {
+                                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                        super.onAuthenticationSucceeded(result)
+                                        val intent = Intent(context, SondrCodeActivity::class.java)
+                                        intent.putExtra("sondr_code", sondrCode)
+                                        context.startActivity(intent)
+                                    }
+
+                                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                                        super.onAuthenticationError(errorCode, errString)
+                                        Toast.makeText(context, "$errString", Toast.LENGTH_SHORT).show()
+                                    }
+
+                                    override fun onAuthenticationFailed() {
+                                        super.onAuthenticationFailed()
+                                        Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
+
+                            val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                                .setTitle("Verify Identity")
+                                .setSubtitle("Use fingerprint or device credentials to view your Sondr Code")
+                                .setAllowedAuthenticators(
+                                    BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                                )
+                                .build()
+
+                            biometricPrompt.authenticate(promptInfo)
+                        }
                         .padding(vertical = 10.dp, horizontal = 16.dp)
                 ) {
                    Icon(
@@ -143,7 +196,7 @@ fun SettingsBody() {
                    )
 
                     Text(
-                        text = "Sondr Code",
+                        text = "My Sondr Code",
                         fontSize = 22.sp,
                         fontFamily = InterFont,
                         fontWeight = FontWeight.Bold,
