@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -48,12 +50,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import com.softwarica.sondr.ui.theme.LoraFont
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,6 +68,7 @@ import com.softwarica.sondr.model.UserModel
 import com.softwarica.sondr.repository.UserRepository
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.utils.saveLoggedInUsername
+import androidx.core.net.toUri
 
 
 // main class
@@ -457,12 +464,14 @@ fun LoginBody() {
                                     loading = false
                                 }
                             },
+                            enabled = termsAndCondition,
                             modifier = Modifier
                                 .width(340.dp)
                                 .height(54.dp),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFFFFFFF)
+                                containerColor = Color.White,
+                                disabledContainerColor = Color.White.copy(alpha = 0.5f)
                             )
                         ) {
                             Text(
@@ -499,13 +508,40 @@ fun LoginBody() {
                                     uncheckedColor = Color.White
                                 )
                             )
-                            Text(
-                                text = "I agree to the Terms and Conditions",
-                                color = Color.White,
-                                fontSize = 16.sp,
-                                fontFamily = LoraFont
+
+                            val annotatedText = buildAnnotatedString {
+                                append("I agree to the ")
+
+                                pushStringAnnotation(tag = "TOS", annotation = "https://docs.google.com/document/d/1E5Bxt4aMD0O7mv4Lh1hGHY56zW06ffyBxGX_20e5wco/preview") // replace with your link
+                                withStyle(style = SpanStyle(
+                                    color = Color.White,
+                                    textDecoration = TextDecoration.Underline,
+                                    fontFamily = LoraFont
+                                )) {
+                                    append("Terms and Conditions")
+                                }
+                                pop()
+                            }
+
+                            ClickableText(
+                                text = annotatedText,
+                                style = TextStyle(
+                                    color = Color.White,
+                                    fontSize = 16.sp,
+                                    fontFamily = LoraFont
+                                ),
+                                onClick = { offset ->
+                                    annotatedText.getStringAnnotations(tag = "TOS", start = offset, end = offset)
+                                        .firstOrNull()?.let { annotation ->
+                                            // Handle click here. For example:
+                                            val intent = Intent(Intent.ACTION_VIEW,
+                                                annotation.item.toUri())
+                                            context.startActivity(intent)
+                                        }
+                                }
                             )
                         }
+
                         Spacer(Modifier.height(32.dp))
 
 

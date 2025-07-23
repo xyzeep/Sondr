@@ -2,6 +2,7 @@ package com.softwarica.sondr.view
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -254,7 +255,12 @@ fun SettingsBody() {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { /* handle click */ }
+                        .clickable {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                data = "https://docs.google.com/document/d/1E5Bxt4aMD0O7mv4Lh1hGHY56zW06ffyBxGX_20e5wco/preview".toUri()
+                            }
+                            context.startActivity(intent)
+                        }
                         .padding(vertical = 10.dp, horizontal = 16.dp)
                 ) {
                     Icon(
