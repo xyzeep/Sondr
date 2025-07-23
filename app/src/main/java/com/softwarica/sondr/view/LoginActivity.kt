@@ -446,7 +446,6 @@ fun LoginBody() {
                                 userRepository.register(registerUsername) { success, message, code ->
                                     if (success) {
                                         Toast.makeText(context, "Registered Successfully!", Toast.LENGTH_LONG).show()
-                                        loading = false
                                         registerUsername = ""
                                         val intent = Intent(context, SondrCodeActivity::class.java)
                                         intent.putExtra("sondr_code", code) // Pass the code here
@@ -455,6 +454,7 @@ fun LoginBody() {
                                     } else {
                                         Toast.makeText(context, "Error: $message", Toast.LENGTH_LONG).show()
                                     }
+                                    loading = false
                                 }
                             },
                             modifier = Modifier

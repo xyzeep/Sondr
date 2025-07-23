@@ -22,10 +22,7 @@ interface UserRepository {
     )
 
 
-    fun deleteAccount(
-        userID: String,
-        callback: (Boolean, String) -> Unit
-    )
+    fun deleteAccount(userID: String, sondrCode: String, callback: (Boolean, String) -> Unit)
 
     fun editProfile(
         userID: String, data: MutableMap<String, Any>,

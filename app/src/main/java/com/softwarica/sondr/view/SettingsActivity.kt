@@ -3,27 +3,33 @@ package com.softwarica.sondr.view
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,9 +40,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.R
+import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.ui.theme.InterFont
-import com.softwarica.sondr.view.ui.theme.SondrTheme
-import okhttp3.internal.http2.Settings
+import com.softwarica.sondr.utils.getLoggedInUsername
+import androidx.core.content.edit
+
 
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +60,13 @@ class SettingsActivity : ComponentActivity() {
 fun SettingsBody() {
     val context = LocalContext.current
     val activity = context as? Activity
+
+    val userRepo = UserRepositoryImpl(context)
+    val userID = getLoggedInUsername(context) ?: return
+
+    var showDeleteAccDialog by remember { mutableStateOf(false) }
+    var sondrCodeInput by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
 
 
     Scaffold { innerPadding ->
@@ -237,7 +252,7 @@ fun SettingsBody() {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { /* handle click */ }
+                        .clickable {showDeleteAccDialog = true}
                         .padding(vertical = 10.dp, horizontal = 16.dp)
                 ) {
                     Icon(
@@ -261,6 +276,99 @@ fun SettingsBody() {
 
 
         }
+
+        if (showDeleteAccDialog) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFF1E1E1E))
+                        .padding(24.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Sorry to see you go",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            fontFamily = InterFont
+                        )
+
+                        Text(
+                            text = "Are you sure you want to delete your account?",
+                            fontSize = 16.sp,
+                            color = Color.White,
+                            fontFamily = InterFont,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = sondrCodeInput,
+                            onValueChange = { sondrCodeInput = it },
+                            label = { Text("Enter your Sondr Code", color = Color.White) },
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.Transparent),
+                            textStyle = androidx.compose.ui.text.TextStyle(color = Color.White)
+                        )
+
+                        if (errorMessage.isNotEmpty()) {
+                            Text(
+                                text = errorMessage,
+                                color = Color.Red,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Oops, no",
+                                color = Color.Gray,
+                                fontSize = 16.sp,
+                                fontFamily = InterFont,
+                                modifier = Modifier.clickable {
+                                    showDeleteAccDialog = false
+                                    sondrCodeInput = ""
+                                    errorMessage = ""
+                                }
+                            )
+
+                            Text(
+                                text = "I'm sure!",
+                                color = Color(0xFFFF4C4C),
+                                fontSize = 16.sp,
+                                fontFamily = InterFont,
+                                modifier = Modifier.clickable {
+                                    userRepo.deleteAccount(userID, sondrCodeInput.trim()) { deleted, msg ->
+                                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+
+                                        if (deleted) {
+                                            val sharedPreferences = context.getSharedPreferences("sondr_prefs", android.content.Context.MODE_PRIVATE)
+                                            sharedPreferences.edit() { clear() }
+                                            context.startActivity(Intent(context, LoginActivity::class.java))
+                                            activity?.finish()
+                                        }
+                                    }
+                                }
+
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
 

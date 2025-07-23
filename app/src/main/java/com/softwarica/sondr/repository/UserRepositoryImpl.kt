@@ -117,9 +117,35 @@ class UserRepositoryImpl(private val context: Context) : UserRepository {
         TODO("Not yet implemented")
     }
 
-    override fun deleteAccount(userID: String, callback: (Boolean, String) -> Unit) {
-        TODO("Not yet implemented")
+    override fun deleteAccount(userID: String, sondrCode: String, callback: (Boolean, String) -> Unit) {
+        usersRef.child(userID).get()
+            .addOnSuccessListener { snapshot ->
+                val actualCode = snapshot.child("sondrCode").value as? String
+
+                if (actualCode == null) {
+                    callback(false, "Something went wrong. Try again.")
+                } else if (actualCode != sondrCode) {
+                    callback(false, "Incorrect Sondr Code.")
+                } else {
+                    // Code matches, delete account
+                    usersRef.child(userID).removeValue()
+                        .addOnSuccessListener {
+                            val sharedPreferences = context.getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
+                            sharedPreferences.edit().clear().apply()
+
+                            callback(true, "Account deleted successfully")
+                        }
+                        .addOnFailureListener { error ->
+                            callback(false, error.message ?: "Failed to delete account")
+                        }
+                }
+            }
+            .addOnFailureListener { error ->
+                callback(false, error.message ?: "Could not verify Sondr Code")
+            }
     }
+
+
 
     override fun editProfile(userID: String, data: MutableMap<String, Any>, callback: (Boolean, String) -> Unit) {
         TODO("Not yet implemented")
