@@ -404,7 +404,6 @@ fun PostSnapshotBody(photoUri: Uri?) {
     Loading(isLoading = loading, message = "Posting your snapshot...")
     }
 
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewPostSnapshot() {
