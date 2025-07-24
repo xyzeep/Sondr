@@ -2,6 +2,8 @@ package com.softwarica.sondr.repository
 
 import com.softwarica.sondr.model.PostModel
 
+// This is the interface for everything related to post.
+
 interface PostRepository {
     fun createPost(post: PostModel, callback: (Boolean, String) -> Unit)
     fun getPostById(postId: String, callback: (Boolean, String, PostModel?) -> Unit)
