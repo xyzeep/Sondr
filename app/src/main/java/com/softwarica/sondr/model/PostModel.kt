@@ -4,7 +4,7 @@ enum class PostType {
     SNAPSHOT,
     WHISPR
 }
-
+// This is how the posts will be stored in the firebase realtime database
 data class PostModel(
     val postID: String = "",
     val authorID: String = "",

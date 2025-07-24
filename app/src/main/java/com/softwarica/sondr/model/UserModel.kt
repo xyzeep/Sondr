@@ -1,5 +1,6 @@
 package com.softwarica.sondr.model
 
+// This is how the users details are stored in the firebase realtime database.
 data class UserModel(
     val userID: String = "",
     val username: String = "",
