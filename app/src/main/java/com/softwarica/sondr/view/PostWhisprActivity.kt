@@ -89,13 +89,8 @@ fun PostWhisprBody(audioUri: Uri?) {
     val activity = context as? Activity
 
 
-    val audioPathString = audioUri?.toString()
-
     val postRepo = PostRepositoryImpl(context)
     val userRepo = UserRepositoryImpl(context)
-
-
-
 
     val mediaPlayer = remember(audioUri) {
         MediaPlayer().apply {
@@ -294,6 +289,10 @@ fun PostWhisprBody(audioUri: Uri?) {
                         )
                     )
                     Spacer(Modifier.height(12.dp))
+
+
+
+                    // switches for private post and nsfw
                     Row (
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -323,6 +322,7 @@ fun PostWhisprBody(audioUri: Uri?) {
                         )
 
                     }
+
 
                     Row (
                         verticalAlignment = Alignment.CenterVertically,
@@ -450,9 +450,6 @@ fun PostWhisprBody(audioUri: Uri?) {
     }
     Loading(isLoading = loading, message = "Posting your Whispr...")
 }
-
-
-
 
 @Preview(showBackground = true)
 @Composable

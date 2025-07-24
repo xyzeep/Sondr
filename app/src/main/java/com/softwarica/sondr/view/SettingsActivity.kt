@@ -2,10 +2,8 @@ package com.softwarica.sondr.view
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -77,10 +75,10 @@ fun SettingsBody() {
     val executor = ContextCompat.getMainExecutor(context)
 
 
-// Make sondrCode a remembered mutableState so it is accessible everywhere inside this composable
+    // sondrCode is a remembered mutableState so it is accessible everywhere inside this composable
     var sondrCode by remember { mutableStateOf("") }
 
-// Load the current user info once, update sondrCode when data arrives
+    // loading the current user info once, update sondrCode when data arrives
     LaunchedEffect(Unit) {
         userRepo.getCurrentUserInfo { success, _, userModel ->
             if (success && userModel != null) {
@@ -125,11 +123,6 @@ fun SettingsBody() {
                             color = Color(0XFF0088FF),
                             modifier = Modifier.clickable {
                                 activity?.finish() // Finish PostSnapshotActivity
-//                                    // Start NavigationActivity
-//                                    val intent = Intent(context, NavigationActivity::class.java)
-//                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-//                                    context.startActivity(intent)
-
                             }
                         )
 

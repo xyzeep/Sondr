@@ -2,7 +2,6 @@ package com.softwarica.sondr.view
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -74,7 +71,6 @@ class NavigationActivity : ComponentActivity() {
 fun NavigationBody() {
     data class BottomNavItem(val label: String, val iconResId: Int)
     var selectedIndex by remember { mutableIntStateOf(0) }
-    // change this to 0
 
     // for create menu options
     var showCreateMenu by remember { mutableStateOf(false) }
@@ -93,7 +89,6 @@ fun NavigationBody() {
 
     // for top bar
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
     Scaffold(
 
         topBar = {
@@ -235,6 +230,8 @@ fun NavigationBody() {
     }
 }
 
+
+// composable func for more options
 @Composable
 fun MoreOptionsMenu() {
     var expanded by remember { mutableStateOf(false) }
@@ -267,7 +264,6 @@ fun MoreOptionsMenu() {
                 .padding(vertical = 0.dp)
                 .clip(RoundedCornerShape(0.dp)),
 
-            // if something goes wrong in future, look up "properties = PopupProperties"
 
         )  {
             Column(modifier = Modifier
@@ -275,6 +271,8 @@ fun MoreOptionsMenu() {
                 .background(bgColor)
             )
 
+
+            // settings options
             {
                 DropdownMenuItem(
                     text = {

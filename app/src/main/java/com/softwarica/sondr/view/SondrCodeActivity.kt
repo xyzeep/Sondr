@@ -61,12 +61,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cloudinary.android.uploadwidget.UploadWidget.startActivity
 import com.softwarica.sondr.R
-import com.softwarica.sondr.ui.theme.InterFont
 import com.softwarica.sondr.ui.theme.LoraFont
 import com.softwarica.sondr.utils.generateQrBitmap
-import com.softwarica.sondr.view.ui.theme.SondrTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -78,7 +75,7 @@ class SondrCodeActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Get the Sondr code from intent extras
+        // get the sondr code from intent extras
         val sondrCode = intent.getStringExtra("sondr_code") ?: "UNKNOWN"
 
         // generate QR Bitmap
@@ -357,8 +354,6 @@ fun SondrCodeActivityBody(
                 Button(
                     onClick = {
                         showConfirmDialog = true  // show dialog on click
-//                        activity?.startActivity(Intent(activity, LoginActivity::class.java))
-//                        activity?.finish()
                     },
                     modifier = Modifier
                         .width(340.dp)
@@ -452,9 +447,6 @@ fun SondrCodeActivityBody(
             )
         }
     }
-
-
-
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
