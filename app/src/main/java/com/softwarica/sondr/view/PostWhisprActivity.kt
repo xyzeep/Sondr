@@ -79,7 +79,7 @@ class PostWhisprActivity : ComponentActivity() {
 @Composable
 fun PostWhisprBody(audioUri: Uri?) {
     var whisprCaption by remember { mutableStateOf("") }
-    var nsfw by remember { mutableStateOf(true) }
+    var nsfw by remember { mutableStateOf(false) }
     var isPrivate by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(false) }

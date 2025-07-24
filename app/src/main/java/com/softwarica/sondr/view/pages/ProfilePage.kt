@@ -1,6 +1,7 @@
 package com.softwarica.sondr.view.pages
 
 import android.content.Context
+import android.os.Environment
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -33,7 +33,7 @@ import com.softwarica.sondr.model.UserModel
 import com.softwarica.sondr.repository.PostRepository
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepositoryImpl
-import com.softwarica.sondr.utils.downloadImage
+import com.softwarica.sondr.utils.downloadFile
 import com.softwarica.sondr.utils.formatTimestampToDate
 
 @Composable
@@ -268,13 +268,17 @@ fun ProfileFeed(
                     currentUserId = currentUserId.toString(),
                     onLikeToggle = onLikeToggle,
                     onDownload = { post ->
-                        downloadImage(context, post.mediaRes.toString(), "sondr_${post.postID}.jpg")
+                        val (fileName, mimeType, directory) = when (post.type) {
+                            PostType.SNAPSHOT -> Triple("sondr_${post.postID}.jpg", "image/jpeg", Environment.DIRECTORY_PICTURES)
+                            PostType.WHISPR -> Triple("sondr_${post.postID}.m4a", "audio/mp4", Environment.DIRECTORY_MUSIC)
+                        }
+                        downloadFile(context, post.mediaRes.toString(), fileName, mimeType, directory)
                     },
-                    onDeletePost = { postId ->
+                            onDeletePost = { postId ->
                         postRepository.deletePost(postId) { success, message ->
                             if (success) {
                                 Log.d("Delete", "Deleted: $postId")
-                                // Optional: refresh list or show snackbar
+                                // Optional: refresh list or show snack bar
                             } else {
                                 Log.e("Delete", "Failed: $message")
                             }

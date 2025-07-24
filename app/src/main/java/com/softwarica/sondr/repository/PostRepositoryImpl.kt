@@ -14,6 +14,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.MutableData
 import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
+import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.utils.CloudinaryService
 
 class PostRepositoryImpl(
@@ -25,22 +26,17 @@ class PostRepositoryImpl(
     private val cloudinaryService = CloudinaryService.getInstance(context)
 
     override fun createPost(post: PostModel, callback: (Boolean, String) -> Unit) {
-        // we expect mediaRes to be a Uri string if present
-        val mediaUriString = post.mediaRes
-
-        // launch a coroutine for async upload + save
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val uploadedUrl = mediaUriString?.let { uriString ->
-
-                    withContext(Dispatchers.IO) {
-                        uploadMedia(uriString.toUri()).also {
-
+                // Only upload if it's a media post with a local URI
+                val uploadedUrl = if (post.type == PostType.SNAPSHOT || post.type == PostType.WHISPR) {
+                    post.mediaRes?.let { uriString ->
+                        withContext(Dispatchers.IO) {
+                            uploadMedia(uriString.toUri())
                         }
                     }
-                }
+                } else null
 
-                // creating new post with uploaded media URL (or null if none)
                 val newPostId = postsRef.push().key
                 if (newPostId == null) {
                     callback(false, "Failed to generate post ID")
@@ -49,8 +45,7 @@ class PostRepositoryImpl(
 
                 val postToSave = post.copy(
                     postID = newPostId,
-                    mediaRes = uploadedUrl
-                        ?: post.mediaRes // replace with Cloudinary URL if uploaded
+                    mediaRes = uploadedUrl ?: post.mediaRes // use Cloudinary URL if uploaded
                 )
 
                 postsRef.child(newPostId).setValue(postToSave)
@@ -66,9 +61,10 @@ class PostRepositoryImpl(
         }
     }
 
+
     private suspend fun uploadMedia(uri: Uri): String? {
         return try {
-            cloudinaryService.uploadMedia(uri)
+            CloudinaryService.getInstance(context).uploadMedia(context, uri)
         } catch (e: Exception) {
             e.printStackTrace()
             null
