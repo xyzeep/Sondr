@@ -7,6 +7,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.softwarica.sondr.utils.generateSondrCode
 import com.softwarica.sondr.utils.getLoggedInUsername
 
+// this is the implementation class for user repository
+
 class UserRepositoryImpl(private val context: Context) : UserRepository {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
@@ -144,7 +146,6 @@ class UserRepositoryImpl(private val context: Context) : UserRepository {
                 callback(false, error.message ?: "Could not verify Sondr Code")
             }
     }
-
 
 
     override fun editProfile(userID: String, data: MutableMap<String, Any>, callback: (Boolean, String) -> Unit) {

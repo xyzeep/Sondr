@@ -87,7 +87,7 @@ fun ReportPreview() {
     ReportBottomSheet(
         onDismissRequest = {},
         onSubmitReport = { reason, details ->
-            // Handle report submission
+            // handle report submission
         }
     )
 }

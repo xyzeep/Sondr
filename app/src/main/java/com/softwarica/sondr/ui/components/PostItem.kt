@@ -146,10 +146,6 @@ fun PostItem(
                         }
                     }
                 }
-
-
-
-
         }
 
         when (post.type) {
@@ -297,7 +293,6 @@ fun PostItem(
             }
 
 
-            // WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR WHISPR
         }
         Spacer(modifier = Modifier.height(8.dp))
 
