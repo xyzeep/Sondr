@@ -1,5 +1,6 @@
 package com.softwarica.sondr.view.pages
 
+import android.os.Environment
 import com.softwarica.sondr.model.PostModel
 import androidx.compose.foundation.background
 import androidx.compose.runtime.getValue
@@ -45,7 +46,7 @@ import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.repository.PostRepositoryImpl
 import com.softwarica.sondr.repository.UserRepository
 import com.softwarica.sondr.repository.UserRepositoryImpl
-import com.softwarica.sondr.utils.downloadImage
+import com.softwarica.sondr.utils.downloadFile
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -200,7 +201,15 @@ fun Feed(
                     },
                     currentUserId = currentUserId.toString(),
                     onDownload = { post ->
-                        downloadImage(context, post.mediaRes.toString(), "sondr_${post.postID}.jpg")
+                        val url = post.mediaRes.toString()
+                        val (fileName, mimeType, directory) = when (post.type) {
+                            PostType.SNAPSHOT -> Triple("sondr_${post.postID}.jpg", "image/jpeg", Environment.DIRECTORY_PICTURES)
+                            PostType.WHISPR -> Triple("sondr_${post.postID}.m4a", "audio/mp4", Environment.DIRECTORY_MUSIC)
+                            else -> Triple("sondr_${post.postID}", "*/*", Environment.DIRECTORY_DOWNLOADS)
+                        }
+
+
+                        downloadFile(context, url, fileName, mimeType, directory)
                     },
                     onDeletePost = { postId ->
                         deleteLoading = true

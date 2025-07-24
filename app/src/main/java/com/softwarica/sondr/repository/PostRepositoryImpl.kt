@@ -14,6 +14,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.MutableData
 import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
+import com.softwarica.sondr.model.NotificationModel
+import com.softwarica.sondr.model.PostType
 import com.softwarica.sondr.utils.CloudinaryService
 
 class PostRepositoryImpl(
@@ -25,22 +27,17 @@ class PostRepositoryImpl(
     private val cloudinaryService = CloudinaryService.getInstance(context)
 
     override fun createPost(post: PostModel, callback: (Boolean, String) -> Unit) {
-        // we expect mediaRes to be a Uri string if present
-        val mediaUriString = post.mediaRes
-
-        // launch a coroutine for async upload + save
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val uploadedUrl = mediaUriString?.let { uriString ->
-
-                    withContext(Dispatchers.IO) {
-                        uploadMedia(uriString.toUri()).also {
-
+                // Only upload if it's a media post with a local URI
+                val uploadedUrl = if (post.type == PostType.SNAPSHOT || post.type == PostType.WHISPR) {
+                    post.mediaRes?.let { uriString ->
+                        withContext(Dispatchers.IO) {
+                            uploadMedia(uriString.toUri())
                         }
                     }
-                }
+                } else null
 
-                // creating new post with uploaded media URL (or null if none)
                 val newPostId = postsRef.push().key
                 if (newPostId == null) {
                     callback(false, "Failed to generate post ID")
@@ -49,8 +46,7 @@ class PostRepositoryImpl(
 
                 val postToSave = post.copy(
                     postID = newPostId,
-                    mediaRes = uploadedUrl
-                        ?: post.mediaRes // replace with Cloudinary URL if uploaded
+                    mediaRes = uploadedUrl ?: post.mediaRes // use Cloudinary URL if uploaded
                 )
 
                 postsRef.child(newPostId).setValue(postToSave)
@@ -66,9 +62,10 @@ class PostRepositoryImpl(
         }
     }
 
+
     private suspend fun uploadMedia(uri: Uri): String? {
         return try {
-            cloudinaryService.uploadMedia(uri)
+            CloudinaryService.getInstance(context).uploadMedia(context, uri)
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -150,42 +147,63 @@ class PostRepositoryImpl(
 
     override fun likePost(postId: String, userId: String, callback: (Boolean, String) -> Unit) {
         val postRef = postsRef.child(postId)
+        var justLiked = false  // flag to track if this transaction actually added a like
+
         postRef.runTransaction(object : Transaction.Handler {
             override fun doTransaction(currentData: MutableData): Transaction.Result {
-                val post =
-                    currentData.getValue(PostModel::class.java) ?: return Transaction.success(
-                        currentData
-                    )
+                val post = currentData.getValue(PostModel::class.java) ?: return Transaction.success(currentData)
 
-                // updating likes count
-                val updatedLikes = post.likes + 1
-
-                // updating likedBy list
                 val updatedLikedBy = post.likedBy?.toMutableList() ?: mutableListOf()
-                if (!updatedLikedBy.contains(userId)) {
-                    updatedLikedBy.add(userId)
-                }
 
-                // setting updated values back
-                currentData.child("likes").value = updatedLikes
-                currentData.child("likedBy").value = updatedLikedBy.distinct()
+                if (!updatedLikedBy.contains(userId)) {
+                    // User has not liked yet — update likes count and likedBy list
+                    justLiked = true
+                    val updatedLikes = post.likes + 1
+                    updatedLikedBy.add(userId)
+
+                    currentData.child("likes").value = updatedLikes
+                    currentData.child("likedBy").value = updatedLikedBy.distinct()
+                }
+                // If user already liked, do nothing
 
                 return Transaction.success(currentData)
             }
 
-            override fun onComplete(
-                error: DatabaseError?,
-                committed: Boolean,
-                currentData: DataSnapshot?
-            ) {
+            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
                 if (error != null) {
                     callback(false, error.message)
-                } else {
-                    callback(true, "Post liked")
+                    return
                 }
+                if (!committed) {
+                    callback(false, "Transaction not committed")
+                    return
+                }
+
+                if (justLiked) {
+                    val post = currentData?.getValue(PostModel::class.java)
+                    // Only notify if the user liking is NOT the author
+                    if (post != null && post.authorID != userId) {
+                        val notification = NotificationModel(
+                            id = "", // will be generated in repo
+                            toUserId = post.authorID,
+                            fromUserId = userId,
+                            message = "User $userId liked your post",
+                            timestamp = System.currentTimeMillis()
+                        )
+
+                        val notificationRepo = NotificationRepositoryImpl(context)
+                        notificationRepo.saveNotification(notification) { success, msg ->
+                            // optional: handle notification save result
+                        }
+                    }
+                }
+
+                callback(true, "Post liked")
             }
         })
     }
+
+
 
     override fun unlikePost(postId: String, userId: String, callback: (Boolean, String) -> Unit) {
         val postRef = postsRef.child(postId)

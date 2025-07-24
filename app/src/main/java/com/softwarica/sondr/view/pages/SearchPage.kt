@@ -1,74 +1,128 @@
 package com.softwarica.sondr.view.pages
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import com.softwarica.sondr.R
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-
 import androidx.compose.ui.Modifier
-
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.ui.graphics.SolidColor
-
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import com.softwarica.sondr.model.UserModel
+import com.softwarica.sondr.repository.UserRepositoryImpl
 
 @Composable
 fun SearchPage() {
-
     var query by remember { mutableStateOf("") }
+    var searchResults by remember { mutableStateOf<List<UserModel>>(emptyList()) }
+    val userRepository = UserRepositoryImpl(LocalContext.current)
 
-    Column (
+    LaunchedEffect(query) {
+        if (query.isNotEmpty()) {
+            userRepository.usersRef.orderByChild("username").startAt(query).endAt(query + "\uf8ff").get()
+                .addOnSuccessListener { snapshot ->
+                    val users = mutableListOf<UserModel>()
+                    snapshot.children.forEach { childSnapshot ->
+                        childSnapshot.getValue(UserModel::class.java)?.let { users.add(it) }
+                    }
+                    searchResults = users
+                }
+        } else {
+            searchResults = emptyList()
+        }
+    }
+
+    Column(
         modifier = Modifier
             .background(color = Color(0xff121212))
             .fillMaxSize()
-            .padding(16.dp ),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        SearchBar(
+            query = query,
+            onQueryChange = { query = it }
+        )
 
-    ){
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+        Spacer(modifier = Modifier.height(16.dp))
 
-                )
-            {
-                SearchBar(
-                    query = query,
-                    onQueryChange = { query = it }
-                )
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(searchResults) { user ->
+                UserSearchResult(user = user)
             }
-
+        }
     }
-
 }
 
+@Composable
+fun UserSearchResult(user: UserModel) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF1E1E1E), RoundedCornerShape(12.dp))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF313B4D)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.blue_user),
+                contentDescription = "User Icon",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+            )
+
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column {
+            Text(
+                text = user.username,
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = user.bio,
+                style = TextStyle(
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 14.sp
+                )
+            )
+        }
+    }
+}
 
 @Composable
 fun SearchBar(
@@ -118,7 +172,7 @@ fun SearchBar(
                 decorationBox = { innerTextField ->
                     if (query.isEmpty()) {
                         Text(
-                            text = "Search for posts or users",
+                            text = "Search for users",
                             color = Color.White.copy(alpha = 0.5f),
                             fontSize = 20.sp
                         )
@@ -129,4 +183,3 @@ fun SearchBar(
         }
     }
 }
-

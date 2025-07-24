@@ -2,11 +2,9 @@ package com.softwarica.sondr.utils
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -35,11 +33,17 @@ class CloudinaryService internal constructor(context: Context) {
         }
     }
 
-    suspend fun uploadMedia(uri: Uri): String = suspendCancellableCoroutine { cont ->
-        val deferred = CompletableDeferred<String>()
+    suspend fun uploadMedia(context: Context, uri: Uri): String = suspendCancellableCoroutine { cont ->
+        val contentResolver = context.contentResolver
+        val type = contentResolver.getType(uri)
+        val resourceType = when {
+            type?.startsWith("image") == true -> "image"
+            type?.startsWith("video") == true || type?.startsWith("audio") == true -> "video"
+            else -> "auto" // fallback
+        }
 
         MediaManager.get().upload(uri)
-            .option("resource_type", "video")
+            .option("resource_type", resourceType)
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String) {}
                 override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
@@ -56,13 +60,10 @@ class CloudinaryService internal constructor(context: Context) {
                     if (cont.isActive) cont.resumeWithException(Exception(error.description))
                 }
 
-                override fun onReschedule(requestId: String, error: ErrorInfo) {
-                    // this is optional (handle reschedule if needed)
-                }
+                override fun onReschedule(requestId: String, error: ErrorInfo) {}
             }).dispatch()
 
-        cont.invokeOnCancellation {
-            // this is also optional (cancel upload if needed)
-        }
+        cont.invokeOnCancellation { /* Optional cleanup */ }
     }
+
 }

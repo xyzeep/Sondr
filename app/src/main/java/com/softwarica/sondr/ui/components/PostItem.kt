@@ -1,5 +1,7 @@
 package com.softwarica.sondr.ui.components
+import android.content.Context
 import android.media.MediaPlayer
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -21,7 +23,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.DisposableEffect
@@ -40,9 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.google.firebase.database.FirebaseDatabase
 import com.softwarica.sondr.R
 import com.softwarica.sondr.model.PostModel
 import com.softwarica.sondr.model.PostType
+import com.softwarica.sondr.model.ReportModel
 import com.softwarica.sondr.utils.formatAudioDuration
 import com.softwarica.sondr.utils.getTimeAgo
 
@@ -66,6 +69,8 @@ fun PostItem(
     var optionsExpanded by remember { mutableStateOf(false) }
     // new
     var showHeart by remember { mutableStateOf(false) }
+    var showReportSheet by remember { mutableStateOf(false) }
+
 
     val context = LocalContext.current
     var isPlaying by remember { mutableStateOf(false) }
@@ -121,7 +126,7 @@ fun PostItem(
                                     text = { Text("Report",  color = Color.White) },
                                     onClick = {
                                         optionsExpanded = false
-                                        // TODO: handle report
+                                        showReportSheet = true
                                     }
                                 )
                                 if (post.authorID == currentUserId) {
@@ -360,8 +365,38 @@ fun PostItem(
         }
     }
 
+    if (showReportSheet) {
+        ReportBottomSheet(
+            onDismissRequest = { showReportSheet = false },
+            onSubmitReport = { reason, details ->
+                val report = ReportModel(
+                    reportId = java.util.UUID.randomUUID().toString(),
+                    postId = post.postID,
+                    reportedByUserId = currentUserId,
+                    reason = reason,
+                    additionalDetails = details
+                )
+                submitReportToFirebase(report, context)
+
+
+            }
+        )
+    }
+
+
 }
 
+fun submitReportToFirebase(report: ReportModel, context: Context) {
+    val dbRef = FirebaseDatabase.getInstance().getReference("reports")
+    dbRef.child(report.reportId)
+        .setValue(report)
+        .addOnSuccessListener {
+            Toast.makeText(context, "Report submitted successfully", Toast.LENGTH_SHORT).show()
+        }
+        .addOnFailureListener {
+            Toast.makeText(context, "Failed to submit report: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+}
 @Composable
 private fun DoubleTapHeartOverlay(visible: Boolean) {
     AnimatedVisibility(

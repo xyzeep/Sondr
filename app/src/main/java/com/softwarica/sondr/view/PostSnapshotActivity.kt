@@ -72,7 +72,7 @@ class PostSnapshotActivity : ComponentActivity() {
 @Composable
 fun PostSnapshotBody(photoUri: Uri?) {
     var snapshotCaption by remember { mutableStateOf("") }
-    var nsfw by remember { mutableStateOf(true) }
+    var nsfw by remember { mutableStateOf(false) }
     var isPrivate by remember { mutableStateOf(false) }
     var isFullscreen by remember { mutableStateOf(false) }
     var loading by remember { mutableStateOf(false) }
