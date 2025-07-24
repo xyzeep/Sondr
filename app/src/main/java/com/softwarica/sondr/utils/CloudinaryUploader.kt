@@ -11,8 +11,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-// Replace "YOUR_CLOUD_NAME", "YOUR_API_KEY", and "YOUR_API_SECRET" with your Cloudinary credentials.
-
 class CloudinaryService internal constructor(context: Context) {
     companion object {
         @Volatile
@@ -33,7 +31,7 @@ class CloudinaryService internal constructor(context: Context) {
             config["api_secret"] = "e0dTxIq2lPipTZ7WP7i4mYdVHqM"
             MediaManager.init(context, config)
         } catch (e: Exception) {
-            // Ignore if already initialized
+            // ignoring if already initialized
         }
     }
 
@@ -48,29 +46,23 @@ class CloudinaryService internal constructor(context: Context) {
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                     val url = resultData["secure_url"] as? String
                     if (url != null) {
-                        // log
-                        Log.d("CloudinaryService", "Upload success, URL: $url")  // <-- Add this log
                         if (cont.isActive) cont.resume(url)
                     } else {
-                        // log
-                        Log.e("CloudinaryService", "Upload success but no URL returned") // <-- Add this log
                         if (cont.isActive) cont.resumeWithException(Exception("No URL returned"))
                     }
                 }
 
                 override fun onError(requestId: String, error: ErrorInfo) {
-                    // log
-                    Log.e("CloudinaryService", "Upload error: ${error.description}")  // <-- Add this log
                     if (cont.isActive) cont.resumeWithException(Exception(error.description))
                 }
 
                 override fun onReschedule(requestId: String, error: ErrorInfo) {
-                    // Optional: handle reschedule if needed
+                    // this is optional (handle reschedule if needed)
                 }
             }).dispatch()
 
         cont.invokeOnCancellation {
-            // Optional: cancel upload if needed
+            // this is also optional (cancel upload if needed)
         }
     }
 }
