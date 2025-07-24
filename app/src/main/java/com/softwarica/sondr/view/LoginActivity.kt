@@ -64,8 +64,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softwarica.sondr.R
-import com.softwarica.sondr.model.UserModel
-import com.softwarica.sondr.repository.UserRepository
 import com.softwarica.sondr.repository.UserRepositoryImpl
 import com.softwarica.sondr.utils.saveLoggedInUsername
 import androidx.core.net.toUri
@@ -77,8 +75,6 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val sharedPreferences = getSharedPreferences("sondr_prefs", Context.MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
-
-
 
         if (isLoggedIn) {
             // User is already logged in, go to NavigationActivity
@@ -106,11 +102,7 @@ fun LoginBody() {
     var loading by remember { mutableStateOf(false) }
     var loadingMessage by remember { mutableStateOf("Loading...") }
 
-
-
     // user input for username while register
-
-
     var registerUsername by remember { mutableStateOf("") }
 
     // user input for username while login
