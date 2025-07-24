@@ -52,11 +52,7 @@ fun CameraPreview(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val aspectRatioInt = when (aspectRatio) {
-        "3:4" -> androidx.camera.core.AspectRatio.RATIO_4_3
-        "9:16" -> androidx.camera.core.AspectRatio.RATIO_16_9
-        else -> androidx.camera.core.AspectRatio.RATIO_4_3
-    }
+
     val ratio = when (aspectRatio) {
         "3:4" -> 3f / 4f
         "9:16" -> 9f / 16f
@@ -119,7 +115,6 @@ fun CameraPreview(
 
                     previewView
                 },
-
                 modifier = Modifier.fillMaxSize()
             )
         }

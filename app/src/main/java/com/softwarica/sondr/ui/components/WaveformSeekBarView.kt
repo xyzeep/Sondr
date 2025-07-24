@@ -9,6 +9,7 @@ import com.masoudss.lib.utils.WaveGravity
 import androidx.compose.runtime.Composable
 import kotlin.random.Random
 
+// for debugging
 val debugWaveform = intArrayOf(
     5, 10, 8, 12, 6, 15, 9, 11, 14, 7,
     13, 6, 9, 12, 8, 10, 11, 7, 13, 6,
@@ -29,7 +30,6 @@ fun WaveformSeekBarView(
                 isEnabled = false
                 isClickable = false
                 isFocusable = false
-
                 waveWidth = 12f
                 waveGap = 10f
                 waveMinHeight = 1f
@@ -42,9 +42,7 @@ fun WaveformSeekBarView(
                 progress = 55f
                 maxProgress = 100f
                 waveBackgroundColor = Color(0xFF476A95).copy(alpha = 1f).toArgb()
-//                waveProgressColor = Color(0xFF98C6E6).toArgb()
                 waveProgressColor = Color(0xFF476A95).copy(alpha = 1f).toArgb()
-
                 markerWidth = 10f
                 markerColor = Color.Red.toArgb()
                 markerTextSize = 12f
