@@ -2,7 +2,6 @@ package com.softwarica.sondr.repository
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import com.google.firebase.database.FirebaseDatabase
 import com.softwarica.sondr.model.PostModel
 import kotlinx.coroutines.CoroutineScope
@@ -26,24 +25,22 @@ class PostRepositoryImpl(
     private val cloudinaryService = CloudinaryService.getInstance(context)
 
     override fun createPost(post: PostModel, callback: (Boolean, String) -> Unit) {
-        // We expect mediaRes to be a Uri string if present
+        // we expect mediaRes to be a Uri string if present
         val mediaUriString = post.mediaRes
 
-        // Launch a coroutine for async upload + save
+        // launch a coroutine for async upload + save
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val uploadedUrl = mediaUriString?.let { uriString ->
-                    // log
-                    Log.d("PostRepository", "Uploading media: $uriString")
+
                     withContext(Dispatchers.IO) {
                         uploadMedia(uriString.toUri()).also {
-                            // log
-                            Log.d("PostRepository", "Upload result URL: $it")
+
                         }
                     }
                 }
 
-                // Create new post with uploaded media URL (or null if none)
+                // creating new post with uploaded media URL (or null if none)
                 val newPostId = postsRef.push().key
                 if (newPostId == null) {
                     callback(false, "Failed to generate post ID")
@@ -160,16 +157,16 @@ class PostRepositoryImpl(
                         currentData
                     )
 
-                // Update likes count
+                // updating likes count
                 val updatedLikes = post.likes + 1
 
-                // Update likedBy list
+                // updating likedBy list
                 val updatedLikedBy = post.likedBy?.toMutableList() ?: mutableListOf()
                 if (!updatedLikedBy.contains(userId)) {
                     updatedLikedBy.add(userId)
                 }
 
-                // Set updated values back
+                // setting updated values back
                 currentData.child("likes").value = updatedLikes
                 currentData.child("likedBy").value = updatedLikedBy.distinct()
 
@@ -199,14 +196,14 @@ class PostRepositoryImpl(
                         currentData
                     )
 
-                // Update likes count safely
+                // updating likes count safely
                 val updatedLikes = if (post.likes > 0) post.likes - 1 else 0
 
-                // Update likedBy list
+                // updating likedBy list
                 val updatedLikedBy = post.likedBy?.toMutableList() ?: mutableListOf()
                 updatedLikedBy.remove(userId)
 
-                // Set updated values back
+                // Setting updated values back
                 currentData.child("likes").value = updatedLikes
                 currentData.child("likedBy").value = updatedLikedBy.distinct()
 
